@@ -9,7 +9,7 @@ public class Main {
 
         // Замовник дає задачу
         String technicalTask = "Розробка інтернет-магазину Adidas з вишивкою";
-        String customer = "ТОВ 'Кафе - у Діда Панаса'";
+        String customer = "ТОВ 'у Діда Панаса'";
         int estimatedHours = 40; // Тиждень роботи над проектом
 
         // Обробка проекту менеджером

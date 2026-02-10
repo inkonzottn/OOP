@@ -1,49 +1,3 @@
-<#--<!DOCTYPE html>-->
-<#--<html lang="en">-->
-<#--<head>-->
-<#--    <meta charset="UTF-8">-->
-<#--    <title>Managers</title>-->
-<#--</head>-->
-<#--<body>-->
-<#--<h1>Managers list</h1>-->
-
-<#--<table>-->
-<#--    <thead>-->
-<#--    <tr>-->
-
-<#--    </tr>-->
-<#--    </thead>-->
-<#--    <tbody>-->
-
-<#--    <#if managers??>-->
-<#--        <#list managers as manager>-->
-<#--            <tr>-->
-
-<#--                <td>-->
-<#--                    <#if manager.projects?? && manager.projects?size gt 0>-->
-<#--                        <ul>-->
-<#--                            <#list manager.projects as project>-->
-<#--                                <li>${project.title} (ID: ${project.id})</li>-->
-<#--                            </#list>-->
-<#--                        </ul>-->
-<#--                    <#else>-->
-<#--                        No projects yet.-->
-<#--                    </#if>-->
-<#--                </td>-->
-<#--            </tr>-->
-<#--        </#list>-->
-<#--    <#else>-->
-<#--        No managers yet.-->
-<#--    </#if>-->
-<#--    </tbody>-->
-<#--</table>-->
-<#--</body>-->
-<#--</html>-->
-
-
-
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -85,47 +39,36 @@
                             <div>${manager.firstName} ${manager.lastName}</div>
                             <small class="text-muted">${manager.email}</small>
                         </td>
-                        <td class="align-top">
-                            <#if manager.projects?? && manager.projects?size gt 0>
-                                <div class="d-flex flex-wrap gap-2">
-                                    <div class="d-flex flex-wrap gap-3">
-                                        <#list manager.projects as project>
-                                            <div class="project-card border rounded p-3 bg-white shadow-sm" style="min-width: 200px;">
-                                                <#-- Компанія замовника -->
-                                                <div class="text-uppercase text-muted fw-bold mb-1" style="font-size: 0.7rem; letter-spacing: 1px;">
-                                                    ${project.customer.companyName!"No Company"}
-                                                </div>
+                        <td style="min-width: 300px;">
+                            <div class="projects-list-container">
+                                <#if manager.projects?? && manager.projects?size gt 0>
+                                    <#list manager.projects as project>
+                                        <div class="project-card">
+                                            <span class="client-name">${project.customer.companyName!"PERSONAL"}</span>
 
-                                                <#-- Назва проекту -->
-                                                <div class="mb-2">
-                                                    <a href="/projects/${project.id}" class="project-title text-decoration-none fw-bold" style="color: #0d6efd;">
-                                                        ${project.title}
-                                                    </a>
-                                                </div>
+                                            <a href="/projects/${project.id}" class="project-title">${project.title}</a>
 
-                                                <div class="d-flex justify-content-between align-items-center">
-                                                    <span class="badge bg-light text-dark border">ID: ${project.id}</span>
+                                            <div class="project-meta">
+                                                <span class="project-id-tag">ID: ${project.id}</span>
 
-                                                    <#-- Пряма логіка статусів без макросів (щоб точно не злетіло) -->
-                                                    <#if project.status == "PROPOSAL">
-                                                        <span class="badge bg-warning text-dark">PROPOSAL</span>
-                                                    <#elseif project.status == "IN_PROGRESS">
-                                                        <span class="badge bg-primary">IN PROGRESS</span>
-                                                    <#elseif project.status == "COMPLETED">
-                                                        <span class="badge bg-success">COMPLETED</span>
-                                                    <#elseif project.status == "INVOICED">
-                                                        <span class="badge bg-info text-dark">INVOICED</span>
-                                                    <#else>
-                                                        <span class="badge bg-secondary">${project.status!"NEW"}</span>
-                                                    </#if>
-                                                </div>
+                                                <#if project.status == "PROPOSAL">
+                                                    <span class="badge-soft badge-yellow">Proposal</span>
+                                                <#elseif project.status == "IN_PROGRESS">
+                                                    <span class="badge-soft badge-blue">In Progress</span>
+                                                <#elseif project.status == "COMPLETED">
+                                                    <span class="badge-soft badge-green">Completed</span>
+                                                <#elseif project.status == "INVOICED">
+                                                    <span class="badge-soft badge-purple">Invoiced</span>
+                                                <#else>
+                                                    <span class="bg-secondary text-white">${project.status}</span>
+                                                </#if>
                                             </div>
-                                        </#list>
-                                    </div>
-                                </div>
-                            <#else>
-                                <span class="badge bg-light text-muted fw-normal italic">No active projects</span>
-                            </#if>
+                                        </div>
+                                    </#list>
+                                <#else>
+                                    <span class="text-muted small">No projects assigned</span>
+                                </#if>
+                            </div>
                         </td>
                     </tr>
                 </#list>

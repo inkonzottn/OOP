@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
+
 import java.util.List;
 
 @Entity
@@ -32,11 +34,13 @@ public class Project {
     // Зв'язок із замовником
     @ManyToOne
     @JoinColumn(name = "customer_id", nullable = false)
+    @ToString.Exclude
     private Customer customer;
 
     // Зв'язок із менеджером
     @ManyToOne
     @JoinColumn(name = "manager_id")
+    @ToString.Exclude
     private Manager manager;
 
     // Список призначень розробників

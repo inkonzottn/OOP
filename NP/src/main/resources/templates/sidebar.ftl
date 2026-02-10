@@ -8,5 +8,7 @@
         <li><a href="/managers" class="nav-link">Managers</a></li>
         <li><a href="/customers" class="nav-link">Customers</a></li>
         <li><a href="/projects" class="nav-link">Projects</a></li>
+        <li><a href="/project-assignments" class="nav-link">Project Assignments</a></li>
+        <li><a href="/invoices" class="nav-link">Invoices</a></li>
     </ul>
 </div>

@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 
@@ -31,5 +32,6 @@ public class Customer {
 
     // Один замовник може мати багато проєктів
     @OneToMany(mappedBy = "customer", cascade = CascadeType.ALL)
+    @ToString.Exclude
     private List<Project> projects;
 }

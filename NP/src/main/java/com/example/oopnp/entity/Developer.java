@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 import java.util.List;
 import java.util.Set;
@@ -42,6 +43,7 @@ public class Developer {
     private String imageUrl;
 
     // Пряме посилання на проект, над яким розробник працює зараз
+    @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project currentProject;

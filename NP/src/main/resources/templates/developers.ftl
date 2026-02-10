@@ -42,21 +42,49 @@
                             <div>${developer.firstName} ${developer.lastName}</div>
                             <small class="text-muted">${developer.email}</small>
                         </td>
-                        <td>
-                            <span class="badge bg-dark">${developer.specialization}</span><br>
-                            <span class="badge bg-secondary mt-1">${developer.qualification}</span>
+
+                        <td class="align-middle">
+                            <div class="d-flex flex-row gap-1">
+                                <span class="badge-soft badge-blue">
+                                    ${developer.specialization}
+                                </span>
+                                <span class="badge-soft badge-gray">
+                                    ${developer.qualification}
+                                </span>
+                            </div>
                         </td>
+
                         <td><span class="fw-semibold">$${developer.hourlyRate}</span></td>
                         <td>
                             <#list developer.skills as skill>
-                                <span class="badge skill-badge">${skill.name}</span>
+                                <span class="badge">${skill.name}</span>
                             </#list>
                         </td>
                         <td>
                             <#if developer.currentProject??>
-                                <span class="badge bg-info text-dark">${developer.currentProject.title}</span>
+                                    <div class="project-card">
+                                        <span class="client-name">${developer.currentProject.customer.companyName!"PERSONAL"}</span>
+
+                                        <a href="/projects/${developer.currentProject.id}" class="project-title">${developer.currentProject.title}</a>
+
+                                        <div class="project-meta">
+                                            <span class="project-id-tag">ID: ${developer.currentProject.id}</span>
+
+                                            <#if developer.currentProject.status == "PROPOSAL">
+                                                <span class="badge-soft badge-yellow">Proposal</span>
+                                            <#elseif developer.currentProject.status == "IN_PROGRESS">
+                                                <span class="badge-soft badge-blue">In Progress</span>
+                                            <#elseif developer.currentProject.status == "COMPLETED">
+                                                <span class="badge-soft badge-green">Completed</span>
+                                            <#elseif developer.currentProject.status == "INVOICED">
+                                                <span class="badge-soft badge-purple">Invoiced</span>
+                                            <#else>
+                                                <span class="bg-secondary text-white">${developer.currentProject.status}</span>
+                                            </#if>
+                                        </div>
+                                    </div>
                             <#else>
-                                <span class="badge bg-light text-muted">Free</span>
+                                <span class="badge-soft badge-green">Free</span>
                             </#if>
                         </td>
                     </tr>

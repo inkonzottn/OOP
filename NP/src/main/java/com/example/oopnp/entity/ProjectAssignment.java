@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
 @Entity
 @Table(name = "project_assignments")
@@ -17,10 +18,12 @@ public class ProjectAssignment {
 
     @ManyToOne
     @JoinColumn(name = "developer_id", nullable = false)
+    @ToString.Exclude
     private Developer developer;
 
     @ManyToOne
     @JoinColumn(name = "project_id", nullable = false)
+    @ToString.Exclude
     private Project project;
 
     @Column(name = "hours_spent")

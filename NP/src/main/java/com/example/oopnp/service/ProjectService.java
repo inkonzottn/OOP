@@ -1,7 +1,7 @@
 package com.example.oopnp.service;
 
 import com.example.oopnp.entity.Project;
-import com.example.oopnp.repository.ProjectsRepository;
+import com.example.oopnp.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -11,42 +11,42 @@ import java.util.List;
 @RequiredArgsConstructor
 public class ProjectService {
 
-    private final ProjectsRepository projectsRepository;
+    private final ProjectRepository projectRepository;
 
     // save
     public void saveNewProject(Project project) {
-        projectsRepository.save(project);
+        projectRepository.save(project);
     }
 
 
     // update
     public void updateProject(Project project) {
-        projectsRepository.save(project);
+        projectRepository.save(project);
     }
 
     //delete
     public void deleteProjectById(Long id) {
-        projectsRepository.deleteById(id);
+        projectRepository.deleteById(id);
     }
 
     public void deleteProject(Project project) {
-        projectsRepository.delete(project);
+        projectRepository.delete(project);
     }
 
     public void deleteAllProjects() {
-        projectsRepository.deleteAll();
+        projectRepository.deleteAll();
     }
 
     // find
     public List<Project> findAllProjects() {
-        return projectsRepository.findAll();
+        return projectRepository.findAll();
     }
 
     public Project findProjectByTitle(String firstName) {
-        return projectsRepository.findByTitle(firstName);
+        return projectRepository.findByTitle(firstName);
     }
 
     public Project findProjectById(Long id) {
-        return projectsRepository.findById(id).get();
+        return projectRepository.findById(id).get();
     }
 }

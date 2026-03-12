@@ -1,0 +1,147 @@
+package com.example.oopnp.service;
+
+import com.example.oopnp.entity.*;
+import com.example.oopnp.repository.*;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+
+
+@Service
+@RequiredArgsConstructor
+public class UserService implements UserDetailsService {
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final DeveloperRepository developerRepository;
+    private final ManagerRepository managerRepository;
+    private final CustomerRepository customerRepository;
+    private final PasswordEncoder passwordEncoder;
+
+
+    @Override
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+
+        User user = userRepository.findByEmail(email);
+
+        if (user == null) {
+            throw new UsernameNotFoundException("User with email: " + email + " is not foud.");
+        }
+
+        return user;
+    }
+
+    public boolean getUserFromDB(String email) {
+        return (userRepository.findByEmail(email) != null);
+    }
+
+    public User findUserByEmail(String email) {
+        return userRepository.findByEmail(email);
+    }
+
+
+    // створення користувачів по ролям
+//    public User createAdmin(User user) {
+//        Role adminRole = roleRepository.findByName("ROLE_admin");
+//        user.setEmail(prepareEmail(user.getEmail(), adminRole));
+//        return saveWithRole(user, adminRole);
+//    }
+//
+//    public User createDeveloper(User user) {
+//        Role devRole = roleRepository.findByName("ROLE_developer");
+//        user.setEmail(prepareEmail(user.getEmail(), devRole));
+//        User savedUser = saveWithRole(user, devRole);
+//
+//        Developer developer = new Developer();
+//        developer.setUser(savedUser);
+//        developerRepository.save(developer);
+//        return savedUser;
+//    }
+//
+//    public User createManager(User user) {
+//        Role managerRole = roleRepository.findByName("ROLE_manager");
+//        user.setEmail(prepareEmail(user.getEmail(), managerRole));
+//        User savedUser = saveWithRole(user, managerRole);
+//
+//        Manager manager = new Manager();
+//        manager.setUser(savedUser);
+//        managerRepository.save(manager);
+//        return savedUser;
+//    }
+
+
+    // створення системних користувачів (адмін/дев/менеджер), тільки з адмінки
+    public User createUser(User user, String roleName) {
+        Role role = roleRepository.findByName(roleName);
+        user.setEmail(prepareEmail(user.getEmail(), role));
+        return saveWithRole(user, role);
+    }
+
+
+    // реєстрація клієнта
+    public User registerCustomer(User user) {
+        validateCustomerEmail(user.getEmail());
+
+        Role customerRole = roleRepository.findByName("ROLE_customer");
+        User savedUser = saveWithRole(user, customerRole);
+
+        Customer customer = new Customer();
+        customer.setUser(savedUser);
+        customerRepository.save(customer);
+        return savedUser;
+    }
+
+
+    // створення корпоративного імейлу devsync.dev.com/.mng.com в залежності від ролі
+    public String prepareEmail(String email, Role role) {
+        String domain = role.getDomain();
+
+        if (domain == null || domain.isEmpty()) {
+            return email;
+        }
+
+        String name = email.contains("@") ? email.split("@")[0] : email;
+        return name.toLowerCase() + "@" + domain;
+    }
+
+    // перевірка, чи не намагається клієнт використати наш корпоративний домен
+    private void validateCustomerEmail(String email) {
+
+        if (email == null || !email.contains("@")) {
+            throw new IllegalArgumentException("Invalid email format");
+        }
+        String userDomain = email.substring(email.lastIndexOf("@") + 1).toLowerCase();
+
+        // якщо в домені є "devsync" — не реєструємо
+        if (userDomain.contains("devsync")) {
+            throw new IllegalArgumentException("This domain is reserved!");
+        }
+
+        List<String> forbiddenDomains = roleRepository.findAll().stream()
+                .map(Role::getDomain)
+                .filter(Objects::nonNull)
+                .toList();
+
+        boolean isForbidden = forbiddenDomains.stream().anyMatch(domain ->
+                userDomain.equals(domain) || userDomain.endsWith("." + domain)
+        );
+
+        if (isForbidden) {
+            throw new IllegalArgumentException("This domain is reserved!");
+        }
+    }
+
+    // спільна логіка збереження користувачів
+    private User saveWithRole(User user, Role role) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRoles(Collections.singleton(role));
+        user.setEnabled(true);
+        return userRepository.save(user);
+    }
+}

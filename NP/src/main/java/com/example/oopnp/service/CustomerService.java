@@ -43,7 +43,7 @@ public class CustomerService {
     }
 
     public Customer findCustomerByFirstName(String firstName) {
-        return customerRepository.findByFirstName(firstName);
+        return customerRepository.findByUserFirstName(firstName);
     }
 
     public Customer findCustomerById(Long id) {

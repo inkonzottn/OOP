@@ -1,6 +1,9 @@
 package com.example.oopnp.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,14 +22,10 @@ public class Developer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String firstName;
-
-    @Column(nullable = false)
-    private String lastName;
-
-    @Column(unique = true, nullable = false)
-    private String email;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "user_id", referencedColumnName = "id")
+    @Valid
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -36,13 +35,15 @@ public class Developer {
     @Column(nullable = false)
     private Specialization specialization;
 
-    @Column(name = "hourly_rate")
-    private Double hourlyRate;
+
+    @Min(value = 1, message = "Ставка не може бути меншою за 1")
+    @Max(value = 5000, message = "Ставка не може перевищувати 5000")
+    @Column(name = "hourly_rate", nullable = false)    private Double hourlyRate;
 
     @Column(name = "image_url")
     private String imageUrl;
 
-    // Пряме посилання на проект, над яким розробник працює зараз
+    // Пряме посилання на проєкт, над яким розробник працює зараз
     @ToString.Exclude
     @ManyToOne
     @JoinColumn(name = "project_id")
@@ -61,13 +62,4 @@ public class Developer {
             inverseJoinColumns = @JoinColumn(name = "skill_id")
     )
     private Set<Skill> skills;
-}
-
-// Enum для кваліфікації
-enum Qualification {
-    JUNIOR, MIDDLE, SENIOR, LEAD
-}
-
-enum Specialization {
-    BACKEND, FRONTEND, QA, DEVOPS, DESIGN
 }

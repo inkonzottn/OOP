@@ -15,7 +15,7 @@ import java.util.List;
 public class InvoiceController {
     private final InvoiceService invoiceService;
 
-    @GetMapping("/invoices")
+    @GetMapping({"/admin/invoices", "/manager/invoices", "/customer/invoices"})
     public String getPageInvoices(Model model) {
         List<Invoice> invoices = invoiceService.findAllInvoices();
         model.addAttribute("invoices", invoices);

@@ -15,10 +15,11 @@ public class CustomerController {
 
     private final CustomerService customerService;
 
-    @GetMapping("/customers")
+    @GetMapping({"/admin/customers", "/manager/customers", "/developer/customers"})
     public String getPageCustomers(Model model) {
         List<Customer> customers = customerService.findAllCustomers();
         model.addAttribute("customers", customers);
         return "customers";
     }
+
 }

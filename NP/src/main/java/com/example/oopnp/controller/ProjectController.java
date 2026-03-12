@@ -15,7 +15,7 @@ import java.util.List;
 public class ProjectController {
     private final ProjectService projectService;
 
-    @GetMapping("/projects")
+    @GetMapping({"/admin/projects", "/manager/projects", "/developer/projects", "/customer/projects"})
     public String getPageProjects(Model model) {
 
         List<Project> projects = projectService.findAllProjects();

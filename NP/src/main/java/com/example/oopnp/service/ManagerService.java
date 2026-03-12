@@ -43,7 +43,7 @@ public class ManagerService {
     }
 
     public Manager findManagerByFirstName(String firstName) {
-        return managerRepository.findByFirstName(firstName);
+        return managerRepository.findByUserFirstName(firstName);
     }
 
     public Manager findManagerById(Long id) {

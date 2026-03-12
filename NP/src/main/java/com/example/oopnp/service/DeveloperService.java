@@ -1,21 +1,42 @@
 package com.example.oopnp.service;
 
 import com.example.oopnp.entity.Developer;
+import com.example.oopnp.entity.Role;
+import com.example.oopnp.entity.User;
 import com.example.oopnp.repository.DeveloperRepository;
+import com.example.oopnp.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
 public class DeveloperService {
     private final DeveloperRepository developerRepository;
+    private final UserService userService;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+
 
 
     // save
-    public void saveNewDeveloper(Developer developer) {
-        developerRepository.save(developer);
+    @Transactional
+    public Developer saveNewDeveloper(Developer developer) {
+
+        if (developer.getHourlyRate() < 0) throw new IllegalArgumentException("Ставка < 0");
+
+        Role developerRole = roleRepository.findByName("ROLE_developer");
+        User savedUser = userService.createUser(developer.getUser(), developerRole.getName());
+        developer.setUser(savedUser);
+
+        return developerRepository.save(developer);
     }
 
 
@@ -43,7 +64,7 @@ public class DeveloperService {
     }
 
     public Developer findDeveloperByFirstName(String firstName) {
-        return developerRepository.findByFirstName(firstName);
+        return developerRepository.findByUserFirstName(firstName);
     }
 
     public Developer findDeveloperById(Long id) {

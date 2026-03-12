@@ -15,7 +15,7 @@ public class ProjectAssignmentController {
 
     private final ProjectAssignmentService projectAssignmentService;
 
-    @GetMapping("/project-assignments")
+    @GetMapping({"/admin/project-assignments", "/manager/project-assignments", "/developer/project-assignments", "/customer/project-assignments"})
     public String getPageProjectAssignment(Model model) {
         List<ProjectAssignment> projectAssignments = projectAssignmentService.findAllProjectAssignment();
         model.addAttribute("projectAssignments", projectAssignments);

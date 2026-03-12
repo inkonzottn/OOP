@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Developers List</title>
+    <title>Розробники</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="d-flex">
@@ -12,19 +13,29 @@
 
 <div class="main-content">
     <div class="container-fluid">
-        <h2 class="mb-4 fw-bold">Developers</h2>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold m-0">Розробники</h2>
+            <#if isAdmin?? && isAdmin>
+                <a href="/${rolePath}/developers/create" class="btn-add badge-blue shadow-sm d-flex align-items-center gap-2">
+                    + Додати розробника
+                </a>
+            </#if>
+        </div>
 
         <div class="table-container">
             <table class="table table-hover align-middle">
                 <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Photo</th>
-                    <th>Full Name</th>
-                    <th>Role & Level</th>
-                    <th>Rate</th>
-                    <th>Tech Stack</th>
-                    <th>Project</th>
+                    <th>Фото</th>
+                    <th>Повне ім'я</th>
+                    <th>Спеціалізація та рівень</th>
+                    <th>Ставка</th>
+                    <th>Стек технологій</th>
+                    <th>Поточний проєкт</th>
+                    <#if isAdmin?? && isAdmin>
+                        <th class="text-end">Дії</th>
+                    </#if>
                 </tr>
                 </thead>
                 <tbody>
@@ -39,8 +50,8 @@
                             </#if>
                         </td>
                         <td>
-                            <div>${developer.firstName} ${developer.lastName}</div>
-                            <small class="text-muted">${developer.email}</small>
+                            <div>${developer.user.firstName} ${developer.user.lastName}</div>
+                            <small class="text-muted">${developer.user.email}</small>
                         </td>
 
                         <td class="align-middle">
@@ -71,22 +82,47 @@
                                             <span class="project-id-tag">ID: ${developer.currentProject.id}</span>
 
                                             <#if developer.currentProject.status == "PROPOSAL">
-                                                <span class="badge-soft badge-yellow">Proposal</span>
+                                                <span class="badge-soft badge-yellow">Пропозиція</span>
                                             <#elseif developer.currentProject.status == "IN_PROGRESS">
-                                                <span class="badge-soft badge-blue">In Progress</span>
+                                                <span class="badge-soft badge-blue">В процесі</span>
                                             <#elseif developer.currentProject.status == "COMPLETED">
-                                                <span class="badge-soft badge-green">Completed</span>
+                                                <span class="badge-soft badge-green">Завершено</span>
                                             <#elseif developer.currentProject.status == "INVOICED">
-                                                <span class="badge-soft badge-purple">Invoiced</span>
+                                                <span class="badge-soft badge-purple">Виставлено рахунок</span>
                                             <#else>
-                                                <span class="bg-secondary text-white">${developer.currentProject.status}</span>
+                                                <span class="badge-soft badge-gray">${developer.currentProject.status}</span>
                                             </#if>
                                         </div>
                                     </div>
                             <#else>
-                                <span class="badge-soft badge-green">Free</span>
+                                <span class="badge-soft badge-green">Вільний</span>
                             </#if>
                         </td>
+                        <#if isAdmin?? && isAdmin>
+                            <td class="text-end">
+                                <div class="dropdown">
+                                    <button class="btn btn-link text-muted p-1 d-inline-flex align-items-center text-decoration-none"
+                                            type="button"
+                                            data-bs-toggle="dropdown">
+                                        <i class="bi bi-caret-down-fill" style="font-size: 0.85rem;"></i>
+                                    </button>
+
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+                                        <li>
+                                            <a class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2" href="/${rolePath}/developers/edit/${developer.id}">
+                                                <i class="bi bi-pencil-fill text-warning"></i> Редагувати
+                                            </a>
+                                        </li>
+                                        <li><hr class="dropdown-divider opacity-50"></li>
+                                        <li>
+                                            <a class="dropdown-item dropdown-item-custom item-delete d-flex align-items-center gap-2" href="/${rolePath}/developers/delete/${developer.id}">
+                                                <i class="bi bi-trash-fill"></i> Видалити
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </#if>
                     </tr>
                 </#list>
                 </tbody>

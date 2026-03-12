@@ -15,7 +15,7 @@ public class MangerController {
 
     private final ManagerService managerService;
 
-    @GetMapping("/managers")
+    @GetMapping({"/admin/managers", "/manager/managers", "/developer/managers"})
     public String getPageManagers(Model model) {
 
         List<Manager> managers = managerService.findAllManager();

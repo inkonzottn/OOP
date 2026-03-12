@@ -2,8 +2,9 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Customer List</title>
+    <title>Замовники</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link rel="stylesheet" href="/css/style.css">
 </head>
 <body class="d-flex">
@@ -12,16 +13,21 @@
 
 <div class="main-content">
     <div class="container-fluid">
-        <h2 class="mb-4 fw-bold">Customers</h2>
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold m-0">Замовники</h2>
+        </div>
 
         <div class="table-container">
             <table class="table table-hover align-middle">
                 <thead>
                 <tr>
                     <th>ID</th>
-                    <th>Company</th>
-                    <th>Full name</th>
-                    <th>Projects</th>
+                    <th>Компанія</th>
+                    <th>Повне ім'я</th>
+                    <th>Проєкти</th>
+                    <#if isAdmin?? && isAdmin>
+                        <th class="text-end">Дії</th>
+                    </#if>
                 </tr>
                 </thead>
                 <tbody>
@@ -30,8 +36,8 @@
                         <td>${customer.id}</td>
                         <td>${customer.companyName}</td>
                         <td>
-                            <div>${customer.firstName} ${customer.lastName}</div>
-                            <small class="text-muted">${customer.email}</small>
+                            <div>${customer.user.firstName} ${customer.user.lastName}</div>
+                            <small class="text-muted">${customer.user.email}</small>
                         </td>
                         <td style="min-width: 300px;">
                             <div class="projects-list-container">
@@ -46,13 +52,13 @@
                                                 <span class="project-id-tag">ID: ${project.id}</span>
 
                                                 <#if project.status == "PROPOSAL">
-                                                    <span class="badge-soft badge-yellow">Proposal</span>
+                                                    <span class="badge-soft badge-yellow">Пропозиція</span>
                                                 <#elseif project.status == "IN_PROGRESS">
-                                                    <span class="badge-soft badge-blue">In Progress</span>
+                                                    <span class="badge-soft badge-blue">В процесі</span>
                                                 <#elseif project.status == "COMPLETED">
-                                                    <span class="badge-soft badge-green">Completed</span>
+                                                    <span class="badge-soft badge-green">Завершено</span>
                                                 <#elseif project.status == "INVOICED">
-                                                    <span class="badge-soft badge-purple">Invoiced</span>
+                                                    <span class="badge-soft badge-purple">Виставлено рахунок</span>
                                                 <#else>
                                                     <span class="bg-secondary text-white">${project.status}</span>
                                                 </#if>
@@ -60,10 +66,30 @@
                                         </div>
                                     </#list>
                                 <#else>
-                                    <span class="text-muted small">No projects assigned</span>
+                                    <span class="text-muted small">Не замовлено жодного проєкту.</span>
                                 </#if>
                             </div>
                         </td>
+                        <#if isAdmin?? && isAdmin>
+                            <td class="text-end">
+                                <div class="dropdown">
+                                    <button class="btn btn-link text-muted p-1 d-inline-flex align-items-center text-decoration-none"
+                                            type="button"
+                                            data-bs-toggle="dropdown">
+                                        <i class="bi bi-caret-down-fill" style="font-size: 0.85rem;"></i>
+                                    </button>
+
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+                                        <li><hr class="dropdown-divider opacity-50"></li>
+                                        <li>
+                                            <a class="dropdown-item dropdown-item-custom item-delete d-flex align-items-center gap-2" href="/${rolePath}/customers/delete/${customer.id}">
+                                                <i class="bi bi-trash-fill"></i> Видалити
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </td>
+                        </#if>
                     </tr>
                 </#list>
                 </tbody>

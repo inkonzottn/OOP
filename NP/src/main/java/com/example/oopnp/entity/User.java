@@ -26,29 +26,29 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotBlank(message = "Email is required")
-    @Email(message = "Please provide a valid email address")
+    @NotBlank(message = "Email не може бути пустим")
+    @Size(min = 2, max = 50, message = "Логін має містити 2-50 символів")
     @Pattern(
             regexp = "^[a-zA-Z0-9._]+(@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,})?$",
-            message = "Email format is invalid"
+            message = "Email неправильного формату"
     )
     @Column(unique = true, nullable = false)
     private String email; // логін
 
-    @NotBlank(message = "First name can`t be empty")
-    @Size(min = 2, max = 50, message = "First name must contain 2-50 symbols")
-    @Pattern(regexp = "^[A-Za-zА-Яа-яІіЇїЄєҐґ'\\s-]+$", message = "First name can contain only letters")
+    @NotBlank(message = "Ім'я не може бути пустим")
+    @Size(min = 2, max = 50, message = "Ім'я має містити 2-50 символів")
+    @Pattern(regexp = "^[A-Za-zА-Яа-яІіЇїЄєҐґ'\\s-]+$", message = "Ім'я може містити тільки літери")
     @Column(nullable = false)
     private String firstName;
 
-    @NotBlank(message = "Last name can`t be empty")
-    @Size(min = 2, max = 50, message = "Last name must contain 2-50 symbols")
-    @Pattern(regexp = "^[A-Za-zА-Яа-яІіЇїЄєҐґ'\\s-]+$", message = "Last name can contain only letters")
+    @NotBlank(message = "Прізвище не може бути пустим")
+    @Size(min = 2, max = 50, message = "Прізвище має містити 2-50 символів")
+    @Pattern(regexp = "^[A-Za-zА-Яа-яІіЇїЄєҐґ'\\s-]+$", message = "Прізвище може містити тільки літери")
     @Column(nullable = false)
     private String lastName;
 
-    @NotBlank(message = "Password required")
-    @Size(min = 8, message = "Password can`t have less than 8 symbols")
+    @NotBlank(message = "Пароль обов'язковий")
+    @Size(min = 8, message = "Пароль має містити принаймні 8 символів")
     @Column(nullable = false)
     private String password;
 

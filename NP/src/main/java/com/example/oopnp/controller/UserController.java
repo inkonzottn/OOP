@@ -1,5 +1,6 @@
 package com.example.oopnp.controller;
 
+import com.example.oopnp.entity.Customer;
 import com.example.oopnp.entity.User;
 import com.example.oopnp.service.UserService;
 import jakarta.validation.Valid;
@@ -35,7 +36,7 @@ public class UserController {
     }
 
     @PostMapping("/registration")
-    public String addUser(@Valid @ModelAttribute("user") User user,
+    public String addUser(@Valid @ModelAttribute("customer") Customer customer,
                           BindingResult bindingResult,
                           Model model) {
 
@@ -48,7 +49,7 @@ public class UserController {
                     ));
 
             model.addAttribute("errors", errorsMap);
-            model.addAttribute("user", user);
+            model.addAttribute("customer", customer);
 
             System.out.println(errorsMap);
 
@@ -58,12 +59,12 @@ public class UserController {
 
 
         try {
-            userService.registerCustomer(user);
+            userService.registerCustomer(customer);
             return "redirect:/login";
         } catch (IllegalArgumentException e) {
             model.addAttribute("message", e.getMessage());
             model.addAttribute("errors", Collections.emptyMap());
-            model.addAttribute("user", user);
+            model.addAttribute("customer", customer);
             return "registration";
         }
     }

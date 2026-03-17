@@ -25,6 +25,7 @@ public class GlobalControllerAdvice {
 
             if (user != null) {
                 model.addAttribute("username", user.getFirstName());
+                model.addAttribute("currentUserId", user.getId());
             } else {
                 model.addAttribute("username", email);
             }

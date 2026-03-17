@@ -80,12 +80,14 @@
                                     </button>
 
                                     <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
-                                        <li><hr class="dropdown-divider opacity-50"></li>
-                                        <li>
-                                            <a class="dropdown-item dropdown-item-custom item-delete d-flex align-items-center gap-2" href="/${rolePath}/customers/delete/${customer.id}">
+                                        <form action="/${rolePath}/customers/delete/${customer.id}" method="post"
+                                              style="display:inline;"
+                                              onsubmit="return confirm('Ви впевнені, що хочете видалити замовника ${customer.user.firstName} ${customer.user.lastName}?');">
+
+                                            <button type="submit" class="dropdown-item dropdown-item-custom item-delete d-flex align-items-center gap-2" title="Видалити">
                                                 <i class="bi bi-trash-fill"></i> Видалити
-                                            </a>
-                                        </li>
+                                            </button>
+                                        </form>
                                     </ul>
                                 </div>
                             </td>

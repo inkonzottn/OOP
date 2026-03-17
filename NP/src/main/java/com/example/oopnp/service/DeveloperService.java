@@ -25,7 +25,6 @@ public class DeveloperService {
     private final PasswordEncoder passwordEncoder;
 
 
-
     // save
     @Transactional
     public Developer saveNewDeveloper(Developer developer) {
@@ -41,13 +40,37 @@ public class DeveloperService {
 
 
     // update
-    public void updateDeveloper(Developer developer) {
-        developerRepository.save(developer);
+    @Transactional
+    public void updateDeveloper(Long id, Developer updatedDeveloper) {
+
+        Developer existingDeveloper = developerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Розробника не знайдено"));
+
+        existingDeveloper.setHourlyRate(updatedDeveloper.getHourlyRate());
+        existingDeveloper.setQualification(updatedDeveloper.getQualification());
+        existingDeveloper.setSpecialization(updatedDeveloper.getSpecialization());
+
+        User user = existingDeveloper.getUser();
+        user.setFirstName(updatedDeveloper.getUser().getFirstName());
+        user.setLastName(updatedDeveloper.getUser().getLastName());
+
+        user.setEmail(userService.prepareEmail(updatedDeveloper.getUser().getEmail(), user.getRoles().iterator().next()));
+
+        // пароль міняємо ТІЛЬКИ якщо ввели новий
+        if (updatedDeveloper.getUser().getPassword() != null && !updatedDeveloper.getUser().getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(updatedDeveloper.getUser().getPassword()));
+        }
+
+        developerRepository.save(existingDeveloper);
     }
 
     //delete
+    @Transactional
     public void deleteDeveloperById(Long id) {
-        developerRepository.deleteById(id);
+        Developer developer = developerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Розробника з ID " + id + " не знайдено"));
+
+        developerRepository.delete(developer);
     }
 
     public void deleteDeveloper(Developer developer) {

@@ -16,7 +16,8 @@
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fw-bold m-0">Менеджери</h2>
             <#if isAdmin?? && isAdmin>
-                <a href="/${rolePath}/managers/create" class="btn-add badge-blue shadow-sm d-flex align-items-center gap-2">
+                <a href="/${rolePath}/managers/create"
+                   class="btn-add badge-blue shadow-sm d-flex align-items-center gap-2">
                     + Додати менеджера
                 </a>
             </#if>
@@ -37,76 +38,92 @@
                 </thead>
                 <tbody>
                 <#list managers as manager>
-                    <tr>
-                        <td>${manager.id}</td>
-                        <td>
-                            <#if manager.imageUrl??>
-                                <img src="${manager.imageUrl}" class="dev-photo rounded-circle" width="45" height="45">
-                            <#else>
-                                <div class="bg-light rounded-circle text-center" style="width:45px; height:45px; line-height:45px;">?</div>
-                            </#if>
-                        </td>
-                        <td>
-                            <div>${manager.user.firstName} ${manager.user.lastName}</div>
-                            <small class="text-muted">${manager.user.email}</small>
-                        </td>
-                        <td style="min-width: 300px;">
-                            <div class="projects-list-container">
-                                <#if manager.projects?? && manager.projects?size gt 0>
-                                    <#list manager.projects as project>
-                                        <div class="project-card">
-                                            <span class="client-name">${project.customer.companyName!"PERSONAL"}</span>
-
-                                            <a href="/projects/${project.id}" class="project-title">${project.title}</a>
-
-                                            <div class="project-meta">
-                                                <span class="project-id-tag">ID: ${project.id}</span>
-
-                                                <#if project.status == "PROPOSAL">
-                                                    <span class="badge-soft badge-yellow">Пропозиція</span>
-                                                <#elseif project.status == "IN_PROGRESS">
-                                                    <span class="badge-soft badge-blue">В процесі</span>
-                                                <#elseif project.status == "COMPLETED">
-                                                    <span class="badge-soft badge-green">Завершено</span>
-                                                <#elseif project.status == "INVOICED">
-                                                    <span class="badge-soft badge-purple">Виставлено рахунок</span>
-                                                <#else>
-                                                    <span class="bg-secondary text-white">${project.status}</span>
-                                                </#if>
-                                            </div>
-                                        </div>
-                                    </#list>
+                    <#if manager.user.id != currentUserId>
+                        <tr>
+                            <td>${manager.id}</td>
+                            <td>
+                                <#if manager.imageUrl??>
+                                    <img src="${manager.imageUrl}" class="dev-photo rounded-circle" width="45"
+                                         height="45">
                                 <#else>
-                                    <span class="text-muted small">Не призначено жодного проєкту.</span>
+                                    <div class="bg-light rounded-circle text-center"
+                                         style="width:45px; height:45px; line-height:45px;">?
+                                    </div>
                                 </#if>
-                            </div>
-                        </td>
-                        <#if isAdmin?? && isAdmin>
-                            <td class="text-end">
-                                <div class="dropdown">
-                                    <button class="btn btn-link text-muted p-1 d-inline-flex align-items-center text-decoration-none"
-                                            type="button"
-                                            data-bs-toggle="dropdown">
-                                        <i class="bi bi-caret-down-fill" style="font-size: 0.85rem;"></i>
-                                    </button>
+                            </td>
+                            <td>
+                                <div>${manager.user.firstName} ${manager.user.lastName}</div>
+                                <small class="text-muted">${manager.user.email}</small>
+                            </td>
+                            <td style="min-width: 300px;">
+                                <div class="projects-list-container">
+                                    <#if manager.projects?? && manager.projects?size gt 0>
+                                        <#list manager.projects as project>
+                                            <div class="project-card">
+                                                <span class="client-name">${project.customer.companyName!"PERSONAL"}</span>
 
-                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
-                                        <li>
-                                            <a class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2" href="/${rolePath}/managers/edit/${manager.id}">
-                                                <i class="bi bi-pencil-fill text-warning"></i> Редагувати
-                                            </a>
-                                        </li>
-                                        <li><hr class="dropdown-divider opacity-50"></li>
-                                        <li>
-                                            <a class="dropdown-item dropdown-item-custom item-delete d-flex align-items-center gap-2" href="/${rolePath}/managers/delete/${manager.id}">
-                                                <i class="bi bi-trash-fill"></i> Видалити
-                                            </a>
-                                        </li>
-                                    </ul>
+                                                <a href="/projects/${project.id}"
+                                                   class="project-title">${project.title}</a>
+
+                                                <div class="project-meta">
+                                                    <span class="project-id-tag">ID: ${project.id}</span>
+
+                                                    <#if project.status == "PROPOSAL">
+                                                        <span class="badge-soft badge-yellow">Пропозиція</span>
+                                                    <#elseif project.status == "IN_PROGRESS">
+                                                        <span class="badge-soft badge-blue">В процесі</span>
+                                                    <#elseif project.status == "COMPLETED">
+                                                        <span class="badge-soft badge-green">Завершено</span>
+                                                    <#elseif project.status == "INVOICED">
+                                                        <span class="badge-soft badge-purple">Виставлено рахунок</span>
+                                                    <#else>
+                                                        <span class="bg-secondary text-white">${project.status}</span>
+                                                    </#if>
+                                                </div>
+                                            </div>
+                                        </#list>
+                                    <#else>
+                                        <span class="text-muted small">Не призначено жодного проєкту.</span>
+                                    </#if>
                                 </div>
                             </td>
-                        </#if>
-                    </tr>
+                            <#if isAdmin?? && isAdmin>
+                                <td class="text-end">
+                                    <div class="dropdown">
+                                        <button class="btn btn-link text-muted p-1 d-inline-flex align-items-center text-decoration-none"
+                                                type="button"
+                                                data-bs-toggle="dropdown">
+                                            <i class="bi bi-caret-down-fill" style="font-size: 0.85rem;"></i>
+                                        </button>
+
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+                                            <li>
+                                                <a class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2"
+                                                   href="/${rolePath}/managers/edit/${manager.id}">
+                                                    <i class="bi bi-pencil-fill text-warning"></i> Редагувати
+                                                </a>
+                                            </li>
+                                            <li>
+                                                <hr class="dropdown-divider opacity-50">
+                                            </li>
+                                            <li>
+                                                <form action="/${rolePath}/managers/delete/${manager.id}" method="post"
+                                                      style="display:inline;"
+                                                      onsubmit="return confirm('Ви впевнені, що хочете видалити менеджера ${manager.user.firstName} ${manager.user.lastName}?');">
+
+                                                    <button type="submit"
+                                                            class="dropdown-item dropdown-item-custom item-delete d-flex align-items-center gap-2"
+                                                            title="Видалити">
+                                                        <i class="bi bi-trash-fill"></i> Видалити
+                                                    </button>
+                                                </form>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </#if>
+                        </tr>
+                    </#if>
                 </#list>
                 </tbody>
             </table>

@@ -85,13 +85,14 @@ public class UserService implements UserDetailsService {
 
 
     // реєстрація клієнта
-    public User registerCustomer(User user) {
+    public User registerCustomer(Customer customer) {
+
+        User user = customer.getUser();
         validateCustomerEmail(user.getEmail());
 
         Role customerRole = roleRepository.findByName("ROLE_customer");
         User savedUser = saveWithRole(user, customerRole);
 
-        Customer customer = new Customer();
         customer.setUser(savedUser);
         customerRepository.save(customer);
         return savedUser;

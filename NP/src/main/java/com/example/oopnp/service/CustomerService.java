@@ -1,9 +1,11 @@
 package com.example.oopnp.service;
 
 import com.example.oopnp.entity.Customer;
+import com.example.oopnp.entity.Developer;
 import com.example.oopnp.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -25,8 +27,13 @@ public class CustomerService {
     }
 
     //delete
+    @Transactional
     public void deleteCustomerById(Long id) {
-        customerRepository.deleteById(id);
+
+        Customer customer = customerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Замовника з ID " + id + " не знайдено"));
+
+        customerRepository.delete(customer);
     }
 
     public void deleteCustomer(Customer customer) {

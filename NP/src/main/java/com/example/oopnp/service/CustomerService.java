@@ -49,6 +49,15 @@ public class CustomerService {
         return customerRepository.findAll();
     }
 
+    public List<Customer> findCustomersForManger(Long userId) {
+        return customerRepository.findByProjects_Manager_User_Id(userId);
+    }
+
+    public List<Customer> findCustomersForDeveloper(Long userId) {
+        return customerRepository.findByProjects_Developers_User_Id(userId);
+    }
+
+
     public Customer findCustomerByFirstName(String firstName) {
         return customerRepository.findByUserFirstName(firstName);
     }

@@ -38,6 +38,8 @@ public class GlobalControllerAdvice {
                     .anyMatch(a -> a.getAuthority().equals("ROLE_manager"));
             boolean isDeveloper = auth.getAuthorities().stream()
                     .anyMatch(a -> a.getAuthority().equals("ROLE_developer"));
+            boolean isCustomer = auth.getAuthorities().stream()
+                    .anyMatch(a -> a.getAuthority().equals("ROLE_customer"));
 
 
             String rolePath = "customer";
@@ -50,6 +52,7 @@ public class GlobalControllerAdvice {
             model.addAttribute("isAdmin", isAdmin);
             model.addAttribute("isManager", isManager);
             model.addAttribute("isDeveloper", isDeveloper);
+            model.addAttribute("isCustomer", isCustomer);
         } else {
             model.addAttribute("isAuth", false);
         }

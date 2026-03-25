@@ -1,11 +1,14 @@
 package com.example.oopnp.entity;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -19,11 +22,15 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank(message = "Назва проєкту не може бути пустою")
+    @Size(min = 3, max = 100, message = "Назва проєкту має містити 3-100 символів")
     @Column(nullable = false)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
-    private String description; // Тут зберігаємо зміст ТЗ
+    @NotBlank(message = "Опис проєкту не може бути пустим")
+    @Size(min = 50, max = 500, message = "Опис проєкту має містити 50-500 символів")
+    @Column(nullable = false)
+    private String description;
 
     @Column(name = "total_cost")
     private Double totalCost = 0.0;
@@ -44,6 +51,10 @@ public class Project {
     private Manager manager;
 
     // Список призначень розробників
+    @ManyToMany(mappedBy = "allProjects")
+    private List<Developer> developers = new ArrayList<>();
+
+    // Список завдань
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<ProjectAssignment> assignments;
 
@@ -57,9 +68,3 @@ public class Project {
     }
 }
 
-enum ProjectStatus {
-    PROPOSAL,   // ТЗ на розгляді
-    IN_PROGRESS, // Розробники працюють
-    COMPLETED,  // Роботу завершено
-    INVOICED    // Рахунок виставлено замовнику
-}

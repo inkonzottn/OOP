@@ -31,69 +31,81 @@
                 </tr>
                 </thead>
                 <tbody>
-                <#list customers as customer>
-                    <tr>
-                        <td>${customer.id}</td>
-                        <td>${customer.companyName}</td>
-                        <td>
-                            <div>${customer.user.firstName} ${customer.user.lastName}</div>
-                            <small class="text-muted">${customer.user.email}</small>
-                        </td>
-                        <td style="min-width: 300px;">
-                            <div class="projects-list-container">
-                                <#if customer.projects?? && customer.projects?size gt 0>
-                                    <#list customer.projects as project>
-                                        <div class="project-card">
-                                            <span class="client-name">${project.customer.companyName!"PERSONAL"}</span>
+                <#if customers?? && customers?size gt 0>
+                    <#list customers as customer>
+                        <tr>
+                            <td>${customer.id}</td>
+                            <td>${customer.companyName}</td>
+                            <td>
+                                <div>${customer.user.firstName} ${customer.user.lastName}</div>
+                                <small class="text-muted">${customer.user.email}</small>
+                            </td>
+                            <td style="min-width: 300px;">
+                                <div class="projects-list-container">
+                                    <#if customer.projects?? && customer.projects?size gt 0>
+                                        <#list customer.projects as project>
+                                            <div class="project-card">
+                                                <span class="client-name">${project.customer.companyName!"PERSONAL"}</span>
 
-                                            <a href="/projects/${project.id}" class="project-title">${project.title}</a>
+                                                <a href="/projects/${project.id}"
+                                                   class="project-title">${project.title}</a>
 
-                                            <div class="project-meta">
-                                                <span class="project-id-tag">ID: ${project.id}</span>
+                                                <div class="project-meta">
+                                                    <span class="project-id-tag">ID: ${project.id}</span>
 
-                                                <#if project.status == "PROPOSAL">
-                                                    <span class="badge-soft badge-yellow">Пропозиція</span>
-                                                <#elseif project.status == "IN_PROGRESS">
-                                                    <span class="badge-soft badge-blue">В процесі</span>
-                                                <#elseif project.status == "COMPLETED">
-                                                    <span class="badge-soft badge-green">Завершено</span>
-                                                <#elseif project.status == "INVOICED">
-                                                    <span class="badge-soft badge-purple">Виставлено рахунок</span>
-                                                <#else>
-                                                    <span class="bg-secondary text-white">${project.status}</span>
-                                                </#if>
+                                                    <#if project.status == "PROPOSAL">
+                                                        <span class="badge-soft badge-yellow">Пропозиція</span>
+                                                    <#elseif project.status == "IN_PROGRESS">
+                                                        <span class="badge-soft badge-blue">В процесі</span>
+                                                    <#elseif project.status == "COMPLETED">
+                                                        <span class="badge-soft badge-green">Завершено</span>
+                                                    <#elseif project.status == "INVOICED">
+                                                        <span class="badge-soft badge-purple">Виставлено рахунок</span>
+                                                    <#else>
+                                                        <span class="bg-secondary text-white">${project.status}</span>
+                                                    </#if>
+                                                </div>
                                             </div>
-                                        </div>
-                                    </#list>
-                                <#else>
-                                    <span class="text-muted small">Не замовлено жодного проєкту.</span>
-                                </#if>
-                            </div>
-                        </td>
-                        <#if isAdmin?? && isAdmin>
-                            <td class="text-end">
-                                <div class="dropdown">
-                                    <button class="btn btn-link text-muted p-1 d-inline-flex align-items-center text-decoration-none"
-                                            type="button"
-                                            data-bs-toggle="dropdown">
-                                        <i class="bi bi-caret-down-fill" style="font-size: 0.85rem;"></i>
-                                    </button>
-
-                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
-                                        <form action="/${rolePath}/customers/delete/${customer.id}" method="post"
-                                              style="display:inline;"
-                                              onsubmit="return confirm('Ви впевнені, що хочете видалити замовника ${customer.user.firstName} ${customer.user.lastName}?');">
-
-                                            <button type="submit" class="dropdown-item dropdown-item-custom item-delete d-flex align-items-center gap-2" title="Видалити">
-                                                <i class="bi bi-trash-fill"></i> Видалити
-                                            </button>
-                                        </form>
-                                    </ul>
+                                        </#list>
+                                    <#else>
+                                        <span class="text-muted small">Не замовлено жодного проєкту.</span>
+                                    </#if>
                                 </div>
                             </td>
-                        </#if>
+                            <#if isAdmin?? && isAdmin>
+                                <td class="text-end">
+                                    <div class="dropdown">
+                                        <button class="btn btn-link text-muted p-1 d-inline-flex align-items-center text-decoration-none"
+                                                type="button"
+                                                data-bs-toggle="dropdown">
+                                            <i class="bi bi-caret-down-fill" style="font-size: 0.85rem;"></i>
+                                        </button>
+
+                                        <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-3">
+                                            <form action="/${rolePath}/customers/delete/${customer.id}" method="post"
+                                                  style="display:inline;"
+                                                  onsubmit="return confirm('Ви впевнені, що хочете видалити замовника ${customer.user.firstName} ${customer.user.lastName}?');">
+
+                                                <button type="submit"
+                                                        class="dropdown-item dropdown-item-custom item-delete d-flex align-items-center gap-2"
+                                                        title="Видалити">
+                                                    <i class="bi bi-trash-fill"></i> Видалити
+                                                </button>
+                                            </form>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </#if>
+                        </tr>
+                    </#list>
+                <#else>
+                    <tr>
+                        <td colspan="${(isAuth?? && (isAdmin?? && isAdmin) || (isManager?? && isManager))?string('8', '7')}"
+                            class="text-center py-2 text-muted">
+                            <span class="text-muted small">Немає жодних замовників.</span>
+                        </td>
                     </tr>
-                </#list>
+                </#if>
                 </tbody>
             </table>
         </div>

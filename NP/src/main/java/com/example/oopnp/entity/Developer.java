@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -48,6 +49,14 @@ public class Developer {
     @ManyToOne
     @JoinColumn(name = "project_id")
     private Project currentProject;
+
+    @ManyToMany
+    @JoinTable(
+            name = "developer_projects",
+            joinColumns = @JoinColumn(name = "developer_id"),
+            inverseJoinColumns = @JoinColumn(name = "project_id")
+    )
+    private List<Project> allProjects = new ArrayList<>();
 
 
     // Допоміжний метод для перевірки зайнятості

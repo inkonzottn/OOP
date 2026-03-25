@@ -38,7 +38,6 @@ public class DeveloperService {
         return developerRepository.save(developer);
     }
 
-
     // update
     @Transactional
     public void updateDeveloper(Long id, Developer updatedDeveloper) {
@@ -73,17 +72,13 @@ public class DeveloperService {
         developerRepository.delete(developer);
     }
 
-    public void deleteDeveloper(Developer developer) {
-        developerRepository.delete(developer);
-    }
-
-    public void deleteAllDevelopers() {
-        developerRepository.deleteAll();
-    }
-
     // find
     public List<Developer> findAllDevelopers() {
         return developerRepository.findAll();
+    }
+
+    public List<Developer> findFreeDevelopers () {
+        return developerRepository.findByCurrentProjectIsNull();
     }
 
     public Developer findDeveloperByFirstName(String firstName) {

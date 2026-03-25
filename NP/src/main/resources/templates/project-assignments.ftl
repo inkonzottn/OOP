@@ -15,7 +15,7 @@
     <div class="container-fluid">
         <div class="d-flex justify-content-between align-items-center mb-4">
             <h2 class="fw-bold m-0">Завдання проєкту</h2>
-            <#if isAuth?? && (isAdmin?? && isAdmin) || (isManager?? && isManager) || (isDeveloper?? && isDeveloper)>
+            <#if isAuth?? && (isDeveloper?? && isDeveloper)>
                 <a href="/${rolePath}/project-assignments/create" class="btn-add badge-blue shadow-sm d-flex align-items-center gap-2">
                     + Додати завдання
                 </a>
@@ -31,7 +31,7 @@
                     <th>Розробник</th>
                     <th>Часу витрачено</th>
                     <th>Статус</th>
-                    <#if isAuth?? && (isAdmin?? && isAdmin) || (isManager?? && isManager) || (isDeveloper?? && isDeveloper)>
+                    <#if isAuth?? && (isAdmin?? && isAdmin) || (isDeveloper?? && isDeveloper)>
                         <th class="text-end">Дії</th>
                     </#if>
                 </tr>
@@ -65,7 +65,7 @@
                                 <span class="badge-soft badge-green">Завершено</span>
                             </#if>
                         </td>
-                        <#if isAuth?? && isAuth && (isAdmin?? && isAdmin) || (isManager?? && isManager) || (isDeveloper?? && isDeveloper)>
+                        <#if isAuth?? && isAuth && (isAdmin?? && isAdmin) || (isDeveloper?? && isDeveloper)>
                             <td class="text-end">
                                 <div class="dropdown">
                                     <button class="btn btn-link text-muted p-1 d-inline-flex align-items-center text-decoration-none"
@@ -94,7 +94,7 @@
                 </#list>
                 <#else>
                     <tr>
-                        <td colspan="${(isAuth?? && (isAdmin?? && isAdmin) || (isManager?? && isManager) || (isDeveloper?? && isDeveloper))?string('6', '5')}" class="text-center py-2 text-muted">
+                        <td colspan="${(isAuth?? && (isAdmin?? && isAdmin) || (isDeveloper?? && isDeveloper))?string('6', '5')}" class="text-center py-2 text-muted">
                             <span class="text-muted small">Немає жодних завдань.</span>
                         </td>
                     </tr>

@@ -1,52 +1,115 @@
 package com.example.oopnp.service;
 
-import com.example.oopnp.entity.Manager;
+import com.example.oopnp.entity.Developer;
+import com.example.oopnp.entity.Project;
 import com.example.oopnp.entity.ProjectAssignment;
+import com.example.oopnp.repository.DeveloperRepository;
 import com.example.oopnp.repository.ProjectAssignmentRepository;
+import com.example.oopnp.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ProjectAssignmentService {
     private final ProjectAssignmentRepository projectAssignmentRepository;
+    private final DeveloperRepository developerRepository;
+    private final ProjectRepository projectRepository;
+
 
     // save
-    public void saveNewProjectAssignment(ProjectAssignment projectAssignment) {
-        projectAssignmentRepository.save(projectAssignment);
+    @Transactional
+    public ProjectAssignment startProjectAssignment(ProjectAssignment projectAssignment, Long userId, Long projectId) {
+
+        Developer developer = developerRepository.findByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Розробника з userId: " + userId + " не знайдено"));
+
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Проєкт з id: " + projectId + " не знайдено"));
+
+        projectAssignment.setProject(project);
+        projectAssignment.setDeveloper(developer);
+        projectAssignment.setActive(true);
+        projectAssignment.setSpentHours(0);
+        projectAssignment.setSpentMinutes(0);
+
+        return projectAssignmentRepository.save(projectAssignment);
     }
 
 
     // update
-    public void updateProjectAssignment(ProjectAssignment projectAssignment) {
-        projectAssignmentRepository.save(projectAssignment);
+    public ProjectAssignment updateProjectAssignment(Long assignmentId, ProjectAssignment updatedAssignment, Long userId) {
+
+        ProjectAssignment existingAssignment = projectAssignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Завдання з id " + assignmentId + " не знайдено"));
+
+        if (!existingAssignment.getDeveloper().getUser().getId().equals(userId)) {
+            throw new IllegalStateException("Ви не маєте прав на редагування чужого завдання!");
+        }
+
+        if (!existingAssignment.isActive()) {
+            throw new IllegalStateException("Неможливо змінити вже завершене завдання. Зверніться до менеджера.");
+        }
+
+        existingAssignment.setTitle(updatedAssignment.getTitle());
+        existingAssignment.setDescription(updatedAssignment.getDescription());
+
+        return projectAssignmentRepository.save(existingAssignment);
+    }
+
+
+    // finish
+    @Transactional
+    public ProjectAssignment finishProjectAssignment(Long assignmentId, ProjectAssignment updatedAssignment, Long userId) {
+        ProjectAssignment assignment = projectAssignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new IllegalArgumentException("Завдання з id " + assignmentId + " не знайдено"));
+
+        if (!assignment.getDeveloper().getUser().getId().equals(userId)) {
+            throw new IllegalStateException("Ви не можете закрити чуже завдання!");
+        }
+
+        if (!assignment.isActive()) {
+            throw new IllegalStateException("Це завдання вже було завершено раніше!");
+        }
+
+        assignment.setActive(false);
+        assignment.setSpentHours(updatedAssignment.getSpentHours() != null ? updatedAssignment.getSpentHours() : 0);
+        assignment.setSpentMinutes(updatedAssignment.getSpentMinutes() != null ? updatedAssignment.getSpentMinutes() : 0);
+        assignment.setCompletedAt(LocalDateTime.now());
+
+        return projectAssignmentRepository.save(assignment);
     }
 
     //delete
-    public void deleteProjectAssignmentById(Long id) {
-        projectAssignmentRepository.deleteById(id);
-    }
+    @Transactional
+    public void deleteAssignment(Long assignmentId) {
+        if (!projectAssignmentRepository.existsById(assignmentId)) {
+            throw new IllegalArgumentException("Завдання з id " + assignmentId + " не знайдено!");
+        }
 
-    public void deleteProjectAssignment(ProjectAssignment projectAssignment) {
-        projectAssignmentRepository.delete(projectAssignment);
-    }
-
-    public void deleteAllProjectAssignment() {
-        projectAssignmentRepository.deleteAll();
+        projectAssignmentRepository.deleteById(assignmentId);
     }
 
     // find
-    public List<ProjectAssignment> findAllProjectAssignment() {
+    public List<ProjectAssignment> findAllProjectAssignments() {
         return projectAssignmentRepository.findAll();
     }
 
-    public ProjectAssignment findProjectAssignmentByProjectTitle(String projectTitle) {
-        return projectAssignmentRepository.findByProjectTitle(projectTitle);
+    public List<ProjectAssignment> findProjectAssignmentsForDeveloper(Long userId) {
+        return projectAssignmentRepository.findByDeveloper_User_IdOrderByCreatedAtDesc(userId);
     }
 
-    public ProjectAssignment findProjectAssignmentById(Long id) {
-        return projectAssignmentRepository.findById(id).get();
+    public List<ProjectAssignment> findProjectAssignmentsForManager(Long userId) {
+        return projectAssignmentRepository.findByProject_Manager_User_IdOrderByCreatedAtDesc(userId);
     }
+
+    public List<ProjectAssignment> findProjectAssignmentsForCustomer(Long userId) {
+        return projectAssignmentRepository.findByProject_Customer_User_IdOrderByCreatedAtDesc(userId);
+    }
+
+
 }

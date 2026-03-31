@@ -58,13 +58,6 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<ProjectAssignment> assignments;
 
-    // Метод для розрахунку вартості
-    public void calculateCost() {
-        if (assignments != null) {
-            this.totalCost = assignments.stream()
-                    .mapToDouble(a -> a.getHoursSpent() * a.getDeveloper().getHourlyRate())
-                    .sum();
-        }
-    }
+
 }
 

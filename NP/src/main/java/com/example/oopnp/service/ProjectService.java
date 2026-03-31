@@ -22,7 +22,7 @@ public class ProjectService {
 
     // save
     // замовник створює проєкт (замовлення) з назвою та описом
-    public Project saveNewProjectAsCustomer(Project project,  Long userId) {
+    public Project saveNewProjectAsCustomer(Project project, Long userId) {
 
         Customer customer = customerRepository.findByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Замовника з id: " + userId + " не знайдено"));

@@ -1,10 +1,7 @@
 package com.example.oopnp.service;
 
 import com.example.oopnp.entity.*;
-import com.example.oopnp.repository.CustomerRepository;
-import com.example.oopnp.repository.DeveloperRepository;
-import com.example.oopnp.repository.ManagerRepository;
-import com.example.oopnp.repository.ProjectRepository;
+import com.example.oopnp.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,6 +13,7 @@ import java.util.List;
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
+    private final ProjectAssignmentRepository projectAssignmentRepository;
     private final CustomerRepository customerRepository;
     private final ManagerRepository managerRepository;
     private final DeveloperRepository developerRepository;
@@ -50,6 +48,11 @@ public class ProjectService {
             Manager manager = managerRepository.findById(managerId)
                     .orElseThrow(() -> new IllegalArgumentException("Менеджера не знайдено"));
             existingProject.setManager(manager);
+
+
+            if (!manager.getAllProjects().contains(existingProject)) {
+                manager.getAllProjects().add(existingProject);
+            }
         } else {
             existingProject.setManager(null);
         }
@@ -84,22 +87,42 @@ public class ProjectService {
     }
 
     //delete
-    public void deleteProjectById(Long id) {
-        projectRepository.deleteById(id);
-    }
+    @Transactional
+    public void deleteProject(Long projectId) {
 
-    public void deleteProject(Project project) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("Проєкт не знайдено"));
+
+        // чи є пов'язані завдання
+        if (projectAssignmentRepository.existsByProjectId(projectId)) {
+            throw new IllegalStateException("Неможливо видалити проєкт, бо по ньому вже є звіти про виконану роботу. Спершу видаліть завдання.");
+        }
+
+        // прибираємо цей проєкт у девів і менеджерів
+        List<Developer> assignedDevelopers = developerRepository.findByCurrentProjectId(projectId);
+        for (Developer dev : assignedDevelopers) {
+            dev.setCurrentProject(null);
+            dev.getAllProjects().remove(project);
+        }
+        developerRepository.saveAll(assignedDevelopers);
+
+        Manager assignedManager = managerRepository.findByAllProjects_Id(projectId);
+        if (assignedManager.getAllProjects().contains(project)) {
+            assignedManager.getAllProjects().remove(project);
+        }
+
         projectRepository.delete(project);
     }
 
-    public void deleteAllProjects() {
-        projectRepository.deleteAll();
-    }
 
     // find
     public List<Project> findAllProjects() {
         return projectRepository.findAll();
     }
+
+    public Project findProjectById(Long projectId) {
+        return  projectRepository.findById(projectId)
+            .orElseThrow(() -> new IllegalArgumentException("Проєкт з ID " + projectId + " не знайдено")); }
 
     public List<Project> findProjectsForCustomer(Long userId) {
         return projectRepository.findByCustomer_User_Id(userId);
@@ -113,11 +136,4 @@ public class ProjectService {
         return projectRepository.findByDevelopers_User_Id(userId);
     }
 
-    public Project findProjectByTitle(String firstName) {
-        return projectRepository.findByTitle(firstName);
-    }
-
-    public Project findProjectById(Long id) {
-        return projectRepository.findById(id).get();
-    }
 }

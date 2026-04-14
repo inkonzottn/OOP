@@ -45,7 +45,7 @@ public class ProjectAssignmentController {
                 break;
 
             case "ROLE_developer":
-                projectAssignments = projectAssignmentService.findProjectAssignmentsForDeveloper(currentUser.getId());
+                projectAssignments = projectAssignmentService.findAllTeamTasksByUserId(currentUser.getId());
 
                 Developer dev = developerRepository.findByUserId(currentUser.getId())
                         .orElseThrow(() -> new IllegalArgumentException("Розробника не знайдено"));

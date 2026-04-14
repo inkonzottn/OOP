@@ -12,4 +12,7 @@ public interface DeveloperRepository extends JpaRepository<Developer, Long> {
     Optional<Developer> findByUserId(Long userId);
 
     List<Developer> findByCurrentProjectIsNull();
+
+    // знаходимо всіх девів, у яких цей проєкт встановлений як поточний
+    List<Developer> findByCurrentProjectId(Long projectId);
 }

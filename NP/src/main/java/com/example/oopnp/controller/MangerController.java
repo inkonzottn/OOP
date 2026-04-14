@@ -1,9 +1,6 @@
 package com.example.oopnp.controller;
 
-import com.example.oopnp.entity.Developer;
-import com.example.oopnp.entity.Manager;
-import com.example.oopnp.entity.Qualification;
-import com.example.oopnp.entity.Specialization;
+import com.example.oopnp.entity.*;
 import com.example.oopnp.repository.ManagerRepository;
 import jakarta.validation.Valid;
 import org.springframework.ui.Model;
@@ -31,8 +28,19 @@ public class MangerController {
     @GetMapping({"/admin/managers", "/manager/managers", "/developer/managers"})
     public String getPageManagers(Model model) {
 
-        List<Manager> managers = managerService.findAllManager();
-        model.addAttribute("managers", managers);
+        List<Manager> allManagers = managerRepository.findAllManagersWithProjects();
+
+        // Map, менеджер - активні проєкти
+        Map<Manager, List<Project>> managersData = allManagers.stream()
+                .collect(Collectors.toMap(
+                        manager -> manager, // Ключ
+                        manager -> manager.getAllProjects().stream()
+                                .filter(p -> p.getStatus() != ProjectStatus.CLOSED)
+                                .collect(Collectors.toList())
+                ));
+
+        model.addAttribute("managers", managersData);
+
         return "managers";
     }
 

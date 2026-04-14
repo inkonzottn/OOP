@@ -7,7 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,11 +35,15 @@ public class Project {
     @Column(nullable = false)
     private String description;
 
-    @Column(name = "total_cost")
-    private Double totalCost = 0.0;
-
     @Enumerated(EnumType.STRING)
     private ProjectStatus status = ProjectStatus.PROPOSAL;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
 
     // Зв'язок із замовником
     @ManyToOne
@@ -51,13 +58,28 @@ public class Project {
     private Manager manager;
 
     // Список призначень розробників
+    @ToString.Exclude
     @ManyToMany(mappedBy = "allProjects")
     private List<Developer> developers = new ArrayList<>();
 
     // Список завдань
+    @ToString.Exclude
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
     private List<ProjectAssignment> assignments;
 
+    @ToString.Exclude
+    @OneToMany(mappedBy = "project", cascade = CascadeType.ALL)
+    private List<Invoice> invoices = new ArrayList<>();
+
+    public String getFormattedCreatedAt() {
+        if (createdAt == null) return "Невідомо";
+        return createdAt.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+    }
+
+    public String getFormattedCompletedAt() {
+        if (completedAt == null) return "Невідомо";
+        return completedAt.format(DateTimeFormatter.ofPattern("dd.MM.yyyy HH:mm"));
+    }
 
 }
 

@@ -24,6 +24,19 @@
             </#if>
         </div>
 
+        <#if successMessage??>
+            <div class="alert alert-success alert-dismissible fade show shadow-sm" role="alert">
+                <i class="bi bi-check-circle-fill me-2"></i>${successMessage}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </#if>
+        <#if errorMessage??>
+            <div class="alert alert-danger alert-dismissible fade show shadow-sm" role="alert">
+                <i class="bi bi-exclamation-triangle-fill me-2"></i>${errorMessage}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        </#if>
+
         <div class="table-container">
             <table class="table table-hover align-middle">
                 <thead>
@@ -77,7 +90,19 @@
                                     </#if>
                                 </div>
                             </td>
-                            <td><span class="fw-semibold">$${project.totalCost}</span></td>
+                            <td>
+                                <#if project.invoices?? && project.invoices?size gt 0>
+                                    <div class="d-flex flex-column gap-1">
+                                        <#list project.invoices as inv>
+                                            <div class="badge <#if inv.status == 'PAID'>bg-success<#elseif inv.status == 'CANCELLED'>bg-danger<#else>bg-warning text-dark</#if>">
+                                                $${inv.finalPrice?string("0.00")} (${inv.status})
+                                            </div>
+                                        </#list>
+                                    </div>
+                                <#else>
+                                    <span class="text-muted small">Рахунків немає</span>
+                                </#if>
+                            </td>
                             <td class="description-cell">
                                 <div class="description-truncate" title="${project.description}">
                                     ${project.description}
@@ -102,11 +127,27 @@
                                             <li>
                                                 <hr class="dropdown-divider opacity-50">
                                             </li>
+                                            <#if isAuth?? && (isAdmin?? && isAdmin) || (isManager?? && isManager)>
+                                                <li>
+                                                    <a class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2"
+                                                       href="/${rolePath}/invoices/create/${project.id}">
+                                                        <i class="bi bi-cash-coin text-success"></i> Виставити рахунок
+                                                    </a>
+                                                </li>
+
+                                            </#if>
                                             <li>
-                                                <a class="dropdown-item dropdown-item-custom item-delete d-flex align-items-center gap-2"
-                                                   href="/${rolePath}/projects/delete/${project.id}">
-                                                    <i class="bi bi-trash-fill"></i> Видалити
-                                                </a>
+                                                <hr class="dropdown-divider opacity-50">
+                                            </li>
+                                            <li>
+                                                <form action="/admin/projects/delete/${project.id}" method="post"
+                                                      onsubmit="return confirm('Ви впевнені? Проєкт буде видалено зі списків усіх розробників. Цю дію неможливо скасувати!');"
+                                                      style="display:inline;">
+
+                                                    <button type="submit" class="dropdown-item dropdown-item-custom d-flex align-items-center gap-2">
+                                                        <i class="bi bi-trash3 text-danger"></i> Видалити
+                                                    </button>
+                                                </form>
                                             </li>
                                         </ul>
                                     </div>

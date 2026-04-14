@@ -16,6 +16,7 @@ import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.List;
@@ -197,6 +198,22 @@ public class ProjectController {
             model.addAttribute("statuses", ProjectStatus.values());
             return "manager-project-edit";
         }
+    }
+
+
+    // delete
+    @PostMapping("/admin/projects/delete/{id}")
+    public String deleteProject(@PathVariable Long id, RedirectAttributes redirectAttributes) {
+        try {
+            projectService.deleteProject(id);
+            redirectAttributes.addFlashAttribute("successMessage", "Проєкт успішно видалено.");
+        } catch (IllegalStateException e) {
+            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("errorMessage", "Сталася помилка при видаленні проєкту.");
+        }
+
+        return "redirect:/admin/projects";
     }
 
 }

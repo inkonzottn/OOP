@@ -23,6 +23,7 @@ public class Developer {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ToString.Exclude
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @Valid
@@ -50,6 +51,7 @@ public class Developer {
     @JoinColumn(name = "project_id")
     private Project currentProject;
 
+    @ToString.Exclude
     @ManyToMany
     @JoinTable(
             name = "developer_projects",
@@ -64,6 +66,7 @@ public class Developer {
         return currentProject != null;
     }
 
+    @ToString.Exclude
     @ManyToMany
     @JoinTable(
             name = "developer_skills",

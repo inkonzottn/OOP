@@ -75,12 +75,4 @@ public class ManagerService {
     public List<Manager> findAllManager() {
         return managerRepository.findAll();
     }
-
-    public Manager findManagerByFirstName(String firstName) {
-        return managerRepository.findByUserFirstName(firstName);
-    }
-
-    public Manager findManagerById(Long id) {
-        return managerRepository.findById(id).get();
-    }
 }

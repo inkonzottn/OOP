@@ -5,7 +5,9 @@ import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import lombok.ToString;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -18,6 +20,7 @@ public class Manager {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ToString.Exclude
     @OneToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "user_id", referencedColumnName = "id")
     @Valid
@@ -26,7 +29,8 @@ public class Manager {
     @Column(name = "image_url")
     private String imageUrl;
 
-    // Менеджер може курувати багато проектів
+
+    @ToString.Exclude
     @OneToMany(mappedBy = "manager", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private List<Project> projects;
+    private List<Project> allProjects;
 }

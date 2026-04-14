@@ -99,6 +99,12 @@ public class ProjectAssignmentService {
         return projectAssignmentRepository.findAll();
     }
 
+    public List<ProjectAssignment> findAllProjectAssignmentsByProjectId(Long projectId) {
+        return projectAssignmentRepository.findByProject_IdOrderByCreatedAtDesc(projectId);
+    }
+
+    public List<ProjectAssignment> findAllTeamTasksByUserId(Long userId) { return projectAssignmentRepository.findAllTeamTasksByUserId(userId); }
+
     public List<ProjectAssignment> findProjectAssignmentsForDeveloper(Long userId) {
         return projectAssignmentRepository.findByDeveloper_User_IdOrderByCreatedAtDesc(userId);
     }

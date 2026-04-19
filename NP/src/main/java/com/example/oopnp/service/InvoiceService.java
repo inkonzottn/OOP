@@ -146,9 +146,8 @@ public class InvoiceService {
 
 
     // find
-    public List<Invoice> findAllInvoices() {
-        return invoiceRepository.findAll();
-    }
+    public List<Invoice> findAllInvoices() { return invoiceRepository.findAll(); }
+
 
     public Invoice findById(Long invoiceId) { return invoiceRepository.findById(invoiceId).get(); }
 

@@ -1,7 +1,6 @@
 package com.example.oopnp.service;
 
 import com.example.oopnp.entity.Customer;
-import com.example.oopnp.entity.Developer;
 import com.example.oopnp.repository.CustomerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -15,16 +14,6 @@ public class CustomerService {
 
     private final CustomerRepository customerRepository;
 
-    // save
-    public void saveNewCustomer(Customer customer) {
-        customerRepository.save(customer);
-    }
-
-
-    // update
-    public void updateCustomer(Customer customer) {
-        customerRepository.save(customer);
-    }
 
     //delete
     @Transactional
@@ -36,20 +25,15 @@ public class CustomerService {
         customerRepository.delete(customer);
     }
 
-    public void deleteCustomer(Customer customer) {
-        customerRepository.delete(customer);
-    }
-
-    public void deleteAllCustomers() {
-        customerRepository.deleteAll();
-    }
 
     // find
     public List<Customer> findAllCustomers() {
         return customerRepository.findAll();
     }
 
-    public List<Customer> findCustomersForManger(Long userId) {
+    public List<Customer> findAllCustomersWithSortedProjects() { return  customerRepository.findAllCustomersWithSortedProjects(); }
+
+    public List<Customer> findCustomersForManager(Long userId) {
         return customerRepository.findByProjects_Manager_User_Id(userId);
     }
 
@@ -57,12 +41,4 @@ public class CustomerService {
         return customerRepository.findByProjects_Developers_User_Id(userId);
     }
 
-
-    public Customer findCustomerByFirstName(String firstName) {
-        return customerRepository.findByUserFirstName(firstName);
-    }
-
-    public Customer findCustomerById(Long id) {
-        return customerRepository.findById(id).get();
-    }
 }

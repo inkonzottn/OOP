@@ -19,18 +19,4 @@ public class TestController {
         return "welcome";
     }
 
-//    @GetMapping("/manager")
-//    public String getPageManager() {
-//        return "manager/manager";
-//    }
-//
-//    @GetMapping("/developer")
-//    public String getPageDeveloper() {
-//        return "developer/developer";
-//    }
-//
-//    @GetMapping("/customer")
-//    public String getPageUser() {
-//        return "customer/customer";
-//    }
 }

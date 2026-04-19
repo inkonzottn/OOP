@@ -1,9 +1,6 @@
 package com.example.oopnp.service;
 
-import com.example.oopnp.entity.Developer;
-import com.example.oopnp.entity.Manager;
-import com.example.oopnp.entity.Role;
-import com.example.oopnp.entity.User;
+import com.example.oopnp.entity.*;
 import com.example.oopnp.repository.ManagerRepository;
 import com.example.oopnp.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +8,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -63,16 +63,37 @@ public class ManagerService {
         managerRepository.delete(manager);
     }
 
-    public void deleteManager(Manager manager) {
-        managerRepository.delete(manager);
-    }
-
-    public void deleteAllManager() {
-        managerRepository.deleteAll();
-    }
 
     // find
     public List<Manager> findAllManager() {
         return managerRepository.findAll();
     }
+
+    public Manager findManagerById(Long id) { return managerRepository.findById(id).get(); }
+
+    public Map<Manager, List<Project>> getAllManagersWithActiveProjects() {
+        List<Manager> allManagers = managerRepository.findAllManagersWithProjects();
+
+        return allManagers.stream()
+                .collect(Collectors.toMap(
+                        manager -> manager,
+                        manager -> manager.getAllProjects().stream()
+                                .filter(p -> p.getStatus() != ProjectStatus.CLOSED)
+                                .collect(Collectors.toList())
+                ));
+    }
+
+    public Map<Manager, List<Project>> getManagerWithActiveProjectsByUserId(Long userId) {
+        Manager manager = managerRepository.findManagerWithProjectsByUserId(userId)
+                .orElseThrow(() -> new IllegalArgumentException("Менеджера не знайдено"));
+
+        List<Project> currentProjects = manager.getAllProjects().stream()
+                .filter(p -> p.getStatus() != ProjectStatus.CLOSED)
+                .sorted(Comparator.comparing(Project::getStatus)
+                        .thenComparing(Project::getCreatedAt, Comparator.reverseOrder()))
+                .collect(Collectors.toList());
+
+        return Map.of(manager, currentProjects);
+    }
+
 }

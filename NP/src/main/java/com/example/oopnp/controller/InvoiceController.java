@@ -1,59 +1,31 @@
 package com.example.oopnp.controller;
 
 import com.example.oopnp.entity.*;
-import com.example.oopnp.repository.InvoiceRepository;
 import com.example.oopnp.service.InvoiceService;
 import com.example.oopnp.service.ProjectAssignmentService;
 import com.example.oopnp.service.ProjectService;
-import com.example.oopnp.service.UserService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.ui.Model;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.security.Principal;
 import java.util.List;
 
 @Controller
 @RequiredArgsConstructor
+@RequestMapping("/invoices")
 public class InvoiceController {
     private final InvoiceService invoiceService;
     private final ProjectService projectService;
     private  final ProjectAssignmentService projectAssignmentService;
-    private final UserService userService;
-
-    @GetMapping({"/admin/invoices", "/manager/invoices", "/customer/invoices"})
-    public String getPageInvoices(Principal principal, Authentication auth, Model model) {
-
-        User currentUser = userService.findUserByEmail(principal.getName());
-        Long currentUserId = currentUser.getId();
-        List<Invoice> invoices;
-
-        if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_admin"))) {
-            invoices = invoiceService.findAllInvoices();
-
-        } else if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_manager"))) {
-            invoices = invoiceService.findInvoicesForManager(currentUserId);
-
-        } else if (auth.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_customer"))) {
-            invoices = invoiceService.findInvoicesForCustomer(currentUserId);
-        } else {
-            invoices = null;
-        }
-
-        // відфільтрований список
-        model.addAttribute("invoices", invoices);
-        return "invoices";
-    }
 
 
-    @GetMapping("/{rolePath}/invoices/{id}")
-    public String viewInvoiceDetails(@PathVariable("rolePath") String rolePath, @PathVariable Long id, Model model) {
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('admin', 'manager', 'customer')")
+    public String viewInvoiceDetails(@PathVariable("id") Long id, Model model) {
         Invoice invoice = invoiceService.findById(id);
 
         // дістаємо всі завершені таски по цьому проєкту
@@ -66,9 +38,9 @@ public class InvoiceController {
     }
 
 
-
     // create
-    @GetMapping({"/admin/invoices/create/{projectId}", "/manager/invoices/create/{projectId}"})
+    @GetMapping("/create/{projectId}")
+    @PreAuthorize("hasAnyRole('admin', 'manager')")
     public String getCreateInvoiceForm(@PathVariable Long projectId, Model model) {
         Project project = projectService.findProjectById(projectId);
 
@@ -82,35 +54,40 @@ public class InvoiceController {
     }
 
 
-    @PostMapping("/manager/invoices/create/{projectId}")
+    @PostMapping("/create/{projectId}")
+    @PreAuthorize("hasAnyRole('admin', 'manager')")
     public String createInvoice(@PathVariable Long projectId,
                                 @RequestParam("finalPrice") Double finalPrice,
+                                Authentication auth,
                                 RedirectAttributes redirectAttributes) {
-        try {
-            Project project = projectService.findProjectById(projectId);
-            invoiceService.saveNewInvoice(projectId, finalPrice);
 
+        boolean isAdmin = auth.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_admin"));
+        String baseRedirect = isAdmin ? "redirect:/admin/projects" : "redirect:/manager/projects";
+
+
+        try {
+            invoiceService.saveNewInvoice(projectId, finalPrice);
             redirectAttributes.addFlashAttribute("successMessage", "Рахунок успішно виставлено!");
-            return "redirect:/manager/projects";
+            return baseRedirect;
 
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/manager/invoices/create/" + projectId;
-        } catch (IllegalStateException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/manager/projects";
+            String rolePath = isAdmin ? "admin" : "manager";
+            return "redirect:/" + rolePath + "/invoices/create/" + projectId;
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/manager/projects";
+            return baseRedirect;
         }
     }
 
 
     // update
-    @GetMapping({"/admin/invoices/edit/{projectId}", "/manager/invoices/edit/{id}"})
+    @GetMapping("/edit/{projectId}")
+    @PreAuthorize("hasAnyRole('admin', 'manager')")
     public String getEditInvoiceForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes, Authentication authentication) {
         boolean isAdmin = authentication.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
+                .anyMatch(a -> a.getAuthority().equals("ROLE_admin"));
 
         String rolePath = isAdmin ? "admin" : "manager";
 
@@ -133,12 +110,18 @@ public class InvoiceController {
         }
     }
 
-    @PostMapping("/{rolePath}/invoices/edit/{id}")
-    public String updateInvoice(@PathVariable("rolePath") String rolePath,
-                                @PathVariable Long id,
+
+    @PostMapping("/edit/{id}")
+    @PreAuthorize("hasAnyRole('admin', 'manager')")
+    public String updateInvoice(@PathVariable Long id,
                                 @RequestParam("finalPrice") Double finalPrice,
                                 @RequestParam("status") String status,
-                                RedirectAttributes redirectAttributes) {
+                                RedirectAttributes redirectAttributes, Authentication authentication) {
+
+        boolean isAdmin = authentication.getAuthorities().stream()
+                .anyMatch(a -> a.getAuthority().equals("ROLE_admin"));
+
+        String rolePath = isAdmin ? "admin" : "manager";
 
         try {
             invoiceService.updateInvoice(id, finalPrice, status);
@@ -151,16 +134,5 @@ public class InvoiceController {
         }
     }
 
-    // pay
-    @PostMapping ("/customer/invoices/{id}/pay")
-    public String payInvoice (@PathVariable Long id, RedirectAttributes redirectAttributes) {
-        try {
-            invoiceService.payInvoice(id);
-            redirectAttributes.addFlashAttribute("successMessage", "Рахунок успішно оплачено!");
-            return "redirect:/customer/invoices";
-        } catch (IllegalStateException | IllegalArgumentException e) {
-            redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/customer/invoices";
-        }
-    }
+
 }

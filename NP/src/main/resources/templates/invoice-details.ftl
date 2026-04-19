@@ -80,7 +80,12 @@
                 </div>
                 <div class="col-md-6 text-end">
                     <p class="text-muted small text-uppercase mb-1">Загальна сума до сплати</p>
-                    <h2 class="fw-bold text-success mb-0">$${invoice.finalPrice?string("0.00")}</h2>
+
+                    <div class="my-2 flex-grow-1">
+                        <div class="fw-bold text-dark fs-5 lh-1">
+                            ${invoice.finalPrice?string("0.00")} <span style="font-size: 1rem;" class="text-secondary fw-medium">грн</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 

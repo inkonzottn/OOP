@@ -46,36 +46,6 @@ public class UserService implements UserDetailsService {
     }
 
 
-    // створення користувачів по ролям
-//    public User createAdmin(User user) {
-//        Role adminRole = roleRepository.findByName("ROLE_admin");
-//        user.setEmail(prepareEmail(user.getEmail(), adminRole));
-//        return saveWithRole(user, adminRole);
-//    }
-//
-//    public User createDeveloper(User user) {
-//        Role devRole = roleRepository.findByName("ROLE_developer");
-//        user.setEmail(prepareEmail(user.getEmail(), devRole));
-//        User savedUser = saveWithRole(user, devRole);
-//
-//        Developer developer = new Developer();
-//        developer.setUser(savedUser);
-//        developerRepository.save(developer);
-//        return savedUser;
-//    }
-//
-//    public User createManager(User user) {
-//        Role managerRole = roleRepository.findByName("ROLE_manager");
-//        user.setEmail(prepareEmail(user.getEmail(), managerRole));
-//        User savedUser = saveWithRole(user, managerRole);
-//
-//        Manager manager = new Manager();
-//        manager.setUser(savedUser);
-//        managerRepository.save(manager);
-//        return savedUser;
-//    }
-
-
     // створення системних користувачів (адмін/дев/менеджер), тільки з адмінки
     public User createUser(User user, String roleName) {
         Role role = roleRepository.findByName(roleName);

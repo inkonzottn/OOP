@@ -21,14 +21,14 @@
         <hr>
 
         <div>
-            <li>
-                <a href="/${rolePath}/profile" class="nav-link d-flex align-items-center gap-2">
-                    <i class="bi bi-person-circle"></i> Мій профіль
-                </a>
-            </li>
+<#--            <li>-->
+<#--                <a href="/${rolePath}/profile" class="nav-link d-flex align-items-center gap-2">-->
+<#--                    <i class="bi bi-person-circle"></i> Мій профіль-->
+<#--                </a>-->
+<#--            </li>-->
             <li>
                 <a href="/logout" class="nav-link text-danger d-flex align-items-center gap-2">
-                    <i class="bi bi-box-arrow-right"></i> Вийти
+                    <i class="bi bi-box-arrow-right text-danger"></i> Вийти
                 </a>
             </li>
         </div>

@@ -124,16 +124,27 @@ public class ProjectService {
         return  projectRepository.findById(projectId)
             .orElseThrow(() -> new IllegalArgumentException("Проєкт з ID " + projectId + " не знайдено")); }
 
+    public List<Project> findProjectsSortedForAdmin() {
+        return projectRepository.findAllProjectsSortedByStatus();
+    }
+
     public List<Project> findProjectsForCustomer(Long userId) {
-        return projectRepository.findByCustomer_User_Id(userId);
+        return projectRepository.findProjectsForCustomerSortedByStatus(userId);
     }
 
     public List<Project> findProjectsForManager(Long userId) {
-        return projectRepository.findByManager_User_Id(userId);
+        return projectRepository.findProjectsForManagerSortedByStatus(userId);
     }
 
     public List<Project> findProjectsForDeveloper(Long userId) {
-        return projectRepository.findByDevelopers_User_Id(userId);
+        return projectRepository.findProjectsForDeveloperSortedByStatus(userId);
     }
+
+    public List<Project> findProjectsWithInvoices() { return projectRepository.findProjectsWithInvoices(); }
+
+    public List<Project> findProjectsWithInvoicesByManager(Long userId) { return projectRepository.findProjectsWithInvoicesByManager(userId); }
+
+    public List<Project> findProjectsWithInvoicesByCustomer(Long userId) { return projectRepository.findProjectsWithInvoicesByCustomer(userId); }
+
 
 }

@@ -81,12 +81,13 @@ public class DeveloperService {
         return developerRepository.findByCurrentProjectIsNull();
     }
 
-    public Developer findDeveloperByFirstName(String firstName) {
-        return developerRepository.findByUserFirstName(firstName);
-    }
 
     public Developer findDeveloperById(Long id) {
         return developerRepository.findById(id).get();
+    }
+
+    public Developer findByUserId(Long id) {
+        return developerRepository.findByUserId(id).get();
     }
 
 }

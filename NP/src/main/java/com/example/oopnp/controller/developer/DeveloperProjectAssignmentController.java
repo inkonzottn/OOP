@@ -1,81 +1,41 @@
-package com.example.oopnp.controller;
+package com.example.oopnp.controller.developer;
 
 import com.example.oopnp.entity.Developer;
 import com.example.oopnp.entity.Project;
 import com.example.oopnp.entity.ProjectAssignment;
 import com.example.oopnp.entity.User;
-import com.example.oopnp.repository.DeveloperRepository;
-import com.example.oopnp.repository.ProjectAssignmentRepository;
-import com.example.oopnp.repository.ProjectRepository;
-import com.example.oopnp.service.ProjectService;
+import com.example.oopnp.service.DeveloperService;
+import com.example.oopnp.service.ProjectAssignmentService;
 import com.example.oopnp.service.UserService;
 import jakarta.validation.Valid;
-import org.springframework.ui.Model;
-import com.example.oopnp.service.ProjectAssignmentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
-import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
-public class ProjectAssignmentController {
+@RequestMapping("/developer/project-assignments")
+public class DeveloperProjectAssignmentController {
 
-    private final ProjectAssignmentService projectAssignmentService;
-    private final ProjectAssignmentRepository projectAssignmentRepository;
     private final UserService userService;
-    private final DeveloperRepository developerRepository;
-
-    @GetMapping({"/admin/project-assignments", "/manager/project-assignments", "/developer/project-assignments", "/customer/project-assignments"})
-    public String getPageProjectAssignment(Model model, Principal principal) {
-
-        User currentUser = userService.findUserByEmail(principal.getName());
-        List<ProjectAssignment> projectAssignments;
-
-        switch (currentUser.getRoles().stream().findFirst().get().getName()) {
-            case "ROLE_admin":
-                projectAssignments = projectAssignmentService.findAllProjectAssignments();
-                break;
-
-            case "ROLE_developer":
-                projectAssignments = projectAssignmentService.findAllTeamTasksByUserId(currentUser.getId());
-
-                Developer dev = developerRepository.findByUserId(currentUser.getId())
-                        .orElseThrow(() -> new IllegalArgumentException("Розробника не знайдено"));
-                model.addAttribute("hasActiveProject", dev.getCurrentProject() != null);
-                break;
-
-            case "ROLE_manager":
-                projectAssignments = projectAssignmentService.findProjectAssignmentsForManager(currentUser.getId());
-                break;
-
-            case "ROLE_customer":
-                projectAssignments = projectAssignmentService.findProjectAssignmentsForCustomer(currentUser.getId());
-                break;
-
-            default:
-                projectAssignments = List.of();
-        }
-
-        model.addAttribute("projectAssignments", projectAssignments);
-        return "project-assignments";
-    }
+    private final DeveloperService developerService;
+    private final ProjectAssignmentService projectAssignmentService;
 
 
     // create (start)
-    @GetMapping("/developer/project-assignments/create")
+    @GetMapping("/create")
     public String getCreateForm(Model model, Principal principal) {
 
         User currentUser = userService.findUserByEmail(principal.getName());
-        Developer developer = developerRepository.findByUserId(currentUser.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Розробника не знайдено"));
+        Developer developer = developerService.findByUserId(currentUser.getId());
         Project currentProject = developer.getCurrentProject();
 
         if (currentProject == null) {
@@ -89,26 +49,18 @@ public class ProjectAssignmentController {
         return "project-assignment-create";
     }
 
-    @PostMapping("/developer/project-assignments/create")
+    @PostMapping("/create")
     public String createProjectAssignment(@Valid @ModelAttribute("assignment") ProjectAssignment projectAssignment,
-                                BindingResult bindingResult,
-                                Principal principal,
-                                Model model) {
+                                          BindingResult bindingResult,
+                                          Principal principal,
+                                          Model model) {
 
         User currentUser = userService.findUserByEmail(principal.getName());
-        Developer developer = developerRepository.findByUserId(currentUser.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Розробника не знайдено"));
+        Developer developer = developerService.findByUserId(currentUser.getId());
         Project currentProject = developer.getCurrentProject();
 
         if (bindingResult.hasErrors()) {
-            Map<String, String> errorsMap = bindingResult.getFieldErrors().stream()
-                    .collect(Collectors.toMap(
-                            FieldError::getField,
-                            FieldError::getDefaultMessage,
-                            (existing, replacement) -> existing
-                    ));
-
-            model.addAttribute("errors", errorsMap);
+            model.addAttribute("errors", extractValidationErrors(bindingResult));
             model.addAttribute("currentProject", currentProject);
 
             return "project-assignment-create";
@@ -127,12 +79,11 @@ public class ProjectAssignmentController {
 
 
     // update
-    @GetMapping("/developer/project-assignments/edit/{id}")
+    @GetMapping("/edit/{id}")
     public String getEditForm (@PathVariable Long id, Model model, Principal principal) {
 
         User currentUser = userService.findUserByEmail(principal.getName());
-        ProjectAssignment assignment = projectAssignmentRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Завдання не знайдено"));
+        ProjectAssignment assignment = projectAssignmentService.findProjectAssignmentById(id);
 
         if (!assignment.getDeveloper().getUser().getId().equals(currentUser.getId())) {
             return "redirect:/developer/project-assignments";
@@ -146,26 +97,18 @@ public class ProjectAssignmentController {
         return "project-assignment-edit";
     }
 
-    @PostMapping("/developer/project-assignments/edit/{id}")
+    @PostMapping("/edit/{id}")
     public String updateProjectAssignment( @PathVariable Long id,
-                                @Valid @ModelAttribute("assignment") ProjectAssignment projectAssignment,
-                                BindingResult bindingResult,
-                                Principal principal,
-                                Model model) {
+                                           @Valid @ModelAttribute("assignment") ProjectAssignment projectAssignment,
+                                           BindingResult bindingResult,
+                                           Principal principal,
+                                           Model model) {
 
         User currentUser = userService.findUserByEmail(principal.getName());
 
         if (bindingResult.hasErrors()) {
-            Map<String, String> errorsMap = bindingResult.getFieldErrors().stream()
-                    .collect(Collectors.toMap(
-                            FieldError::getField,
-                            FieldError::getDefaultMessage,
-                            (existing, replacement) -> existing
-                    ));
-
-            model.addAttribute("errors", errorsMap);
-
-            ProjectAssignment originalAssignment = projectAssignmentRepository.findById(id).orElseThrow();
+            model.addAttribute("errors", extractValidationErrors(bindingResult));
+            ProjectAssignment originalAssignment = projectAssignmentService.findProjectAssignmentById(id);
             projectAssignment.setProject(originalAssignment.getProject());
             model.addAttribute("assignment", projectAssignment);
 
@@ -174,12 +117,11 @@ public class ProjectAssignmentController {
 
         try {
             projectAssignmentService.updateProjectAssignment(id, projectAssignment, currentUser.getId());
-
             return "redirect:/developer/project-assignments";
         } catch (Exception e) {
             model.addAttribute("message", e.getMessage());
 
-            ProjectAssignment originalAssignment = projectAssignmentRepository.findById(id).orElseThrow();
+            ProjectAssignment originalAssignment = projectAssignmentService.findProjectAssignmentById(id);
             projectAssignment.setProject(originalAssignment.getProject());
             model.addAttribute("assignment", projectAssignment);
 
@@ -189,7 +131,7 @@ public class ProjectAssignmentController {
 
 
     // finish
-    @PostMapping("/developer/project-assignments/finish/{id}")
+    @PostMapping("/finish/{id}")
     public String finishAssignmentFromModal(@PathVariable("id") Long id,
                                             @RequestParam(defaultValue = "0") Integer spentHours,
                                             @RequestParam(defaultValue = "0") Integer spentMinutes,
@@ -215,11 +157,10 @@ public class ProjectAssignmentController {
 
 
     //delete
-    @PostMapping("/admin/project-assignments/delete/{id}")
+    @PostMapping("/delete/{id}")
     public String deleteAssignment(@PathVariable Long id, RedirectAttributes redirectAttributes) {
         try {
             projectAssignmentService.deleteAssignment(id);
-
             redirectAttributes.addFlashAttribute("successMessage", "Завдання успішно видалено!");
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
@@ -227,4 +168,14 @@ public class ProjectAssignmentController {
 
         return "redirect:/admin/project-assignments";
     }
+
+    private Map<String, String> extractValidationErrors(BindingResult bindingResult) {
+        return bindingResult.getFieldErrors().stream()
+                .collect(Collectors.toMap(
+                        FieldError::getField,
+                        FieldError::getDefaultMessage,
+                        (existing, replacement) -> existing
+                ));
+    }
+
 }

@@ -95,6 +95,8 @@ public class ProjectAssignmentService {
     }
 
     // find
+    public ProjectAssignment findProjectAssignmentById(Long assignmentId) { return  projectAssignmentRepository.findById(assignmentId).get(); }
+
     public List<ProjectAssignment> findAllProjectAssignments() {
         return projectAssignmentRepository.findAll();
     }
@@ -105,9 +107,6 @@ public class ProjectAssignmentService {
 
     public List<ProjectAssignment> findAllTeamTasksByUserId(Long userId) { return projectAssignmentRepository.findAllTeamTasksByUserId(userId); }
 
-    public List<ProjectAssignment> findProjectAssignmentsForDeveloper(Long userId) {
-        return projectAssignmentRepository.findByDeveloper_User_IdOrderByCreatedAtDesc(userId);
-    }
 
     public List<ProjectAssignment> findProjectAssignmentsForManager(Long userId) {
         return projectAssignmentRepository.findByProject_Manager_User_IdOrderByCreatedAtDesc(userId);

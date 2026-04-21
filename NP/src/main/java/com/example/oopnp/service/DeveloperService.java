@@ -6,15 +6,13 @@ import com.example.oopnp.entity.User;
 import com.example.oopnp.repository.DeveloperRepository;
 import com.example.oopnp.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.bind.annotation.RequestBody;
 
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -27,6 +25,7 @@ public class DeveloperService {
 
     // save
     @Transactional
+    @CacheEvict(value = "developers", allEntries = true)
     public Developer saveNewDeveloper(Developer developer) {
 
         if (developer.getHourlyRate() < 0) throw new IllegalArgumentException("Ставка < 0");
@@ -40,6 +39,7 @@ public class DeveloperService {
 
     // update
     @Transactional
+    @CacheEvict(value = "developers", allEntries = true)
     public void updateDeveloper(Long id, Developer updatedDeveloper) {
 
         Developer existingDeveloper = developerRepository.findById(id)
@@ -65,6 +65,7 @@ public class DeveloperService {
 
     //delete
     @Transactional
+    @CacheEvict(value = "developers", allEntries = true)
     public void deleteDeveloperById(Long id) {
         Developer developer = developerRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Розробника з ID " + id + " не знайдено"));
@@ -73,21 +74,26 @@ public class DeveloperService {
     }
 
     // find
+    @Cacheable(value = "developers", key = "'all'")
     public List<Developer> findAllDevelopers() {
         return developerRepository.findAll();
     }
 
+    @Cacheable(value = "developers", key = "'all_free'")
     public List<Developer> findFreeDevelopers () {
         return developerRepository.findByCurrentProjectIsNull();
     }
 
-
+    @Cacheable(value = "developers", key = "'dev_' + #id")
     public Developer findDeveloperById(Long id) {
-        return developerRepository.findById(id).get();
+        return developerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Розробника не знайдено"));
     }
 
+    @Cacheable(value = "developers", key = "'dev_user_' + #id")
     public Developer findByUserId(Long id) {
-        return developerRepository.findByUserId(id).get();
+        return developerRepository.findByUserId(id)
+                .orElseThrow(() -> new IllegalArgumentException("Користувача не знайдено"));
     }
 
 }

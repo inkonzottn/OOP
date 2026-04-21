@@ -6,6 +6,9 @@ import com.example.oopnp.repository.InvoiceRepository;
 import com.example.oopnp.repository.ProjectAssignmentRepository;
 import com.example.oopnp.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -38,6 +41,11 @@ public class InvoiceService {
 
     // save
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "invoices", allEntries = true),
+            @CacheEvict(value = "projects", allEntries = true),
+            @CacheEvict(value = "developers", allEntries = true)
+    })
     public Invoice saveNewInvoice(Long projectId, Double finalPrice) {
 
         Double devCosts = calculateDevCosts(projectId);
@@ -75,9 +83,12 @@ public class InvoiceService {
         return invoiceRepository.save(invoice);
     }
 
-
     // update
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "invoices", allEntries = true),
+            @CacheEvict(value = "projects", allEntries = true)
+    })
     public Invoice updateInvoice(Long invoiceId, Double newFinalPrice, String newStatus) {
         Invoice invoice = findById(invoiceId);
 
@@ -111,15 +122,18 @@ public class InvoiceService {
                 throw new IllegalArgumentException("Нова ціна не може бути меншою за собівартість ($" + invoice.getDevCosts() + ")");
             }
             invoice.setFinalPrice(newFinalPrice);
-
         }
 
         return invoiceRepository.save(invoice);
     }
 
-
     // pay
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "invoices", allEntries = true),
+            @CacheEvict(value = "projects", allEntries = true),
+            @CacheEvict(value = "developers", allEntries = true)
+    })
     public void payInvoice(Long invoiceId) {
         Invoice invoice = invoiceRepository.findById(invoiceId)
                 .orElseThrow(() -> new IllegalArgumentException("Рахунок не знайдено"));
@@ -146,13 +160,11 @@ public class InvoiceService {
 
 
     // find
+    @Cacheable(value = "invoices", key = "'all'")
     public List<Invoice> findAllInvoices() { return invoiceRepository.findAll(); }
 
-
-    public Invoice findById(Long invoiceId) { return invoiceRepository.findById(invoiceId).get(); }
-
-    public List<Invoice> findInvoicesForManager(Long userId) { return invoiceRepository.findByProject_Manager_User_Id(userId); }
-
-    public List<Invoice> findInvoicesForCustomer(Long userId) { return invoiceRepository.findByProject_Customer_User_Id(userId); }
+    @Cacheable(value = "invoices", key = "'inv_' + #invoiceId")
+    public Invoice findById(Long invoiceId) { return invoiceRepository.findById(invoiceId)
+            .orElseThrow(() -> new IllegalArgumentException("Рахунок не знайдено"));}
 
 }

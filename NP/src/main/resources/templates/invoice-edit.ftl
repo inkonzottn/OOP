@@ -52,7 +52,7 @@
                     </div>
                 </div>
 
-                <form action="/${rolePath}/invoices/edit/${invoice.id}" method="post">
+                <form action="/invoices/edit/${invoice.id}" method="post">
 
                     <label class="form-label text-uppercase text-muted fw-bold small tracking-wide mb-3">Оновлена сума до сплати ($)</label>
                     <div class="input-group input-group-lg mb-4 shadow-sm">

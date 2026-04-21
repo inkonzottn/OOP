@@ -114,18 +114,18 @@
                                         </span>
                                     </div>
 
-                                    <div class="mb-4">
-                                        <div class="text-uppercase text-secondary fw-bold mb-2 tracking-wide" style="font-size: 0.7rem;">Технології</div>
-                                        <div class="d-flex flex-wrap gap-1">
-                                            <#if developer.skills?? && developer.skills?has_content>
-                                                <#list developer.skills as skill>
-                                                    <span class="badge bg-white border text-secondary fw-medium px-2 py-1 shadow-sm" style="font-size: 0.75rem;">${skill.name}</span>
-                                                </#list>
-                                            <#else>
-                                                <span class="text-muted small fst-italic">Скіли не вказані</span>
-                                            </#if>
-                                        </div>
-                                    </div>
+<#--                                    <div class="mb-4">-->
+<#--                                        <div class="text-uppercase text-secondary fw-bold mb-2 tracking-wide" style="font-size: 0.7rem;">Технології</div>-->
+<#--                                        <div class="d-flex flex-wrap gap-1">-->
+<#--                                            <#if developer.skills?? && developer.skills?has_content>-->
+<#--                                                <#list developer.skills as skill>-->
+<#--                                                    <span class="badge bg-white border text-secondary fw-medium px-2 py-1 shadow-sm" style="font-size: 0.75rem;">${skill.name}</span>-->
+<#--                                                </#list>-->
+<#--                                            <#else>-->
+<#--                                                <span class="text-muted small fst-italic">Скіли не вказані</span>-->
+<#--                                            </#if>-->
+<#--                                        </div>-->
+<#--                                    </div>-->
                                 </div>
 
                                 <div class="mt-auto bg-light border-top rounded-bottom-4 p-4">

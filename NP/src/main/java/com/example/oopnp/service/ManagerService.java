@@ -4,6 +4,8 @@ import com.example.oopnp.entity.*;
 import com.example.oopnp.repository.ManagerRepository;
 import com.example.oopnp.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,7 +27,8 @@ public class ManagerService {
 
     // save
     @Transactional
-    public Manager saveNewManger(Manager manager) {
+    @CacheEvict(value = "managers", allEntries = true)
+    public Manager saveNewManager(Manager manager) {
 
         Role managerRole = roleRepository.findByName("ROLE_manager");
         User savedUser = userService.createUser(manager.getUser(), managerRole.getName());
@@ -37,6 +40,7 @@ public class ManagerService {
 
     // update
     @Transactional
+    @CacheEvict(value = "managers", allEntries = true)
     public void updateManager(Long id, Manager updatedManager) {
         Manager existingManager = managerRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Менеджера не знайдено"));
@@ -56,6 +60,8 @@ public class ManagerService {
     }
 
     //delete
+    @Transactional
+    @CacheEvict(value = "managers", allEntries = true)
     public void deleteManagerById(Long id) {
         Manager manager = managerRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Менеджера з ID " + id + " не знайдено"));
@@ -65,12 +71,17 @@ public class ManagerService {
 
 
     // find
-    public List<Manager> findAllManager() {
+    @Cacheable(value = "managers", key = "'all'")
+    public List<Manager> findAllManagers() {
         return managerRepository.findAll();
     }
 
-    public Manager findManagerById(Long id) { return managerRepository.findById(id).get(); }
+    @Cacheable(value = "managers", key = "'mng_' + #id")
+    public Manager findManagerById(Long id) { return managerRepository.findById(id)
+            .orElseThrow(() -> new IllegalArgumentException("Менеджера не знайдено"));
+    }
 
+    @Cacheable(value = "managers", key = "'all_with_active_projects_for'")
     public Map<Manager, List<Project>> getAllManagersWithActiveProjects() {
         List<Manager> allManagers = managerRepository.findAllManagersWithProjects();
 
@@ -83,6 +94,7 @@ public class ManagerService {
                 ));
     }
 
+    @Cacheable(value = "managers", key = "'all_with_active_projects_by_' + #userId")
     public Map<Manager, List<Project>> getManagerWithActiveProjectsByUserId(Long userId) {
         Manager manager = managerRepository.findManagerWithProjectsByUserId(userId)
                 .orElseThrow(() -> new IllegalArgumentException("Менеджера не знайдено"));

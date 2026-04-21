@@ -46,7 +46,7 @@ public class AdminManagerController {
         }
 
         try {
-            managerService.saveNewManger(manager);
+            managerService.saveNewManager(manager);
             return "redirect:/admin/managers";
         } catch (IllegalArgumentException e) {
             model.addAttribute("message", e.getMessage());

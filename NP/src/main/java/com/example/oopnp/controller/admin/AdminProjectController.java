@@ -37,7 +37,7 @@ public class AdminProjectController {
     @GetMapping("/edit/{id}")
     public String getProjectEditForm(@PathVariable Long id, Principal principal, Authentication auth, Model model) {
         Project project = projectService.findProjectById(id);
-        List<Manager> managers = managerService.findAllManager();
+        List<Manager> managers = managerService.findAllManagers();
 
         model.addAttribute("project", project);
         model.addAttribute("managers", managers);
@@ -57,7 +57,7 @@ public class AdminProjectController {
         if (bindingResult.hasErrors()) {
             model.addAttribute("errors", extractValidationErrors(bindingResult));
             model.addAttribute("project", project);
-            model.addAttribute("manager", managerService.findAllManager());
+            model.addAttribute("manager", managerService.findAllManagers());
             model.addAttribute("statuses", ProjectStatus.values());
             return "admin-project-edit";
         }
@@ -69,7 +69,7 @@ public class AdminProjectController {
         } catch (IllegalArgumentException e) {
             model.addAttribute("message", e.getMessage());
             model.addAttribute("project", project);
-            model.addAttribute("manager", managerService.findAllManager());
+            model.addAttribute("manager", managerService.findAllManagers());
             model.addAttribute("statuses", ProjectStatus.values());
             return "admin-project-edit";
         }

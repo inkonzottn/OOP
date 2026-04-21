@@ -7,6 +7,8 @@ import com.example.oopnp.repository.DeveloperRepository;
 import com.example.oopnp.repository.ProjectAssignmentRepository;
 import com.example.oopnp.repository.ProjectRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +25,7 @@ public class ProjectAssignmentService {
 
     // save
     @Transactional
+    @CacheEvict(value = "assignments", allEntries = true)
     public ProjectAssignment startProjectAssignment(ProjectAssignment projectAssignment, Long userId, Long projectId) {
 
         Developer developer = developerRepository.findByUserId(userId)
@@ -40,8 +43,9 @@ public class ProjectAssignmentService {
         return projectAssignmentRepository.save(projectAssignment);
     }
 
-
     // update
+    @Transactional
+    @CacheEvict(value = "assignments", allEntries = true)
     public ProjectAssignment updateProjectAssignment(Long assignmentId, ProjectAssignment updatedAssignment, Long userId) {
 
         ProjectAssignment existingAssignment = projectAssignmentRepository.findById(assignmentId)
@@ -61,9 +65,9 @@ public class ProjectAssignmentService {
         return projectAssignmentRepository.save(existingAssignment);
     }
 
-
     // finish
     @Transactional
+    @CacheEvict(value = "assignments", allEntries = true)
     public ProjectAssignment finishProjectAssignment(Long assignmentId, ProjectAssignment updatedAssignment, Long userId) {
         ProjectAssignment assignment = projectAssignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new IllegalArgumentException("Завдання з id " + assignmentId + " не знайдено"));
@@ -86,6 +90,7 @@ public class ProjectAssignmentService {
 
     //delete
     @Transactional
+    @CacheEvict(value = "assignments", allEntries = true)
     public void deleteAssignment(Long assignmentId) {
         if (!projectAssignmentRepository.existsById(assignmentId)) {
             throw new IllegalArgumentException("Завдання з id " + assignmentId + " не знайдено!");
@@ -95,26 +100,30 @@ public class ProjectAssignmentService {
     }
 
     // find
+    @Cacheable(value = "assignments", key = "'assign_' + #assignmentId")
     public ProjectAssignment findProjectAssignmentById(Long assignmentId) { return  projectAssignmentRepository.findById(assignmentId).get(); }
 
+    @Cacheable(value = "assignments", key = "'all'")
     public List<ProjectAssignment> findAllProjectAssignments() {
         return projectAssignmentRepository.findAll();
     }
 
+    @Cacheable(value = "assignments", key = "'by_project_' + #projectId")
     public List<ProjectAssignment> findAllProjectAssignmentsByProjectId(Long projectId) {
         return projectAssignmentRepository.findByProject_IdOrderByCreatedAtDesc(projectId);
     }
 
+    @Cacheable(value = "assignments", key = "'team_tasks_' + #userId")
     public List<ProjectAssignment> findAllTeamTasksByUserId(Long userId) { return projectAssignmentRepository.findAllTeamTasksByUserId(userId); }
 
-
+    @Cacheable(value = "assignments", key = "'manager_' + #userId")
     public List<ProjectAssignment> findProjectAssignmentsForManager(Long userId) {
         return projectAssignmentRepository.findByProject_Manager_User_IdOrderByCreatedAtDesc(userId);
     }
 
+    @Cacheable(value = "assignments", key = "'customer_' + #userId")
     public List<ProjectAssignment> findProjectAssignmentsForCustomer(Long userId) {
         return projectAssignmentRepository.findByProject_Customer_User_IdOrderByCreatedAtDesc(userId);
     }
-
 
 }

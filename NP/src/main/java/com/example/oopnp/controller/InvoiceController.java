@@ -41,7 +41,7 @@ public class InvoiceController {
     // create
     @GetMapping("/create/{projectId}")
     @PreAuthorize("hasAnyRole('admin', 'manager')")
-    public String getCreateInvoiceForm(@PathVariable Long projectId, Model model) {
+    public String getCreateInvoiceForm(@PathVariable("projectId") Long projectId, Model model) {
         Project project = projectService.findProjectById(projectId);
 
         // рахуємо собівартість
@@ -74,7 +74,7 @@ public class InvoiceController {
         } catch (IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             String rolePath = isAdmin ? "admin" : "manager";
-            return "redirect:/" + rolePath + "/invoices/create/" + projectId;
+            return "redirect:/" + rolePath + "/projects/" + projectId;
         } catch (Exception e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
             return baseRedirect;
@@ -83,9 +83,9 @@ public class InvoiceController {
 
 
     // update
-    @GetMapping("/edit/{projectId}")
+    @GetMapping("/edit/{id}")
     @PreAuthorize("hasAnyRole('admin', 'manager')")
-    public String getEditInvoiceForm(@PathVariable Long id, Model model, RedirectAttributes redirectAttributes, Authentication authentication) {
+    public String getEditInvoiceForm(@PathVariable("id") Long id, Model model, RedirectAttributes redirectAttributes, Authentication authentication) {
         boolean isAdmin = authentication.getAuthorities().stream()
                 .anyMatch(a -> a.getAuthority().equals("ROLE_admin"));
 
@@ -130,7 +130,7 @@ public class InvoiceController {
 
         } catch (IllegalStateException | IllegalArgumentException e) {
             redirectAttributes.addFlashAttribute("errorMessage", e.getMessage());
-            return "redirect:/" + rolePath + "/invoices/edit/" + id;
+            return "redirect:/invoices/edit/" + id;
         }
     }
 

@@ -93,7 +93,7 @@
                                                         <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 rounded-4 mt-1">
                                                             <li>
                                                                 <a class="dropdown-item d-flex align-items-center gap-2 py-2 fw-medium"
-                                                                   href="/${rolePath}/invoices/edit/${invoice.id}"
+                                                                   href="/invoices/edit/${invoice.id}"
                                                                    onclick="event.stopPropagation();">
                                                                     <i class="bi bi-pencil-fill text-warning"></i> Редагувати
                                                                 </a>

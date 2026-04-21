@@ -3,6 +3,9 @@ package com.example.oopnp.service;
 import com.example.oopnp.entity.*;
 import com.example.oopnp.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,6 +23,11 @@ public class ProjectService {
 
     // save
     // замовник створює проєкт (замовлення) з назвою та описом
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "projects", allEntries = true),
+            @CacheEvict(value = "customers", allEntries = true)
+    })
     public Project saveNewProjectAsCustomer(Project project, Long userId) {
 
         Customer customer = customerRepository.findByUserId(userId)
@@ -36,6 +44,13 @@ public class ProjectService {
 
     // update
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "projects", allEntries = true),
+            @CacheEvict(value = "managers", allEntries = true),
+            @CacheEvict(value = "developers", allEntries = true),
+            @CacheEvict(value = "customers", allEntries = true),
+            @CacheEvict(value = "assignments", allEntries = true)
+    })
     public Project updateProjectByAdmin(Long projectId, Project updatedProject, Long managerId) {
         Project existingProject = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Проєкт не знайдено"));
@@ -60,7 +75,13 @@ public class ProjectService {
         return projectRepository.save(existingProject);
     }
 
+
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "projects", allEntries = true),
+            @CacheEvict(value = "developers", allEntries = true),
+            @CacheEvict(value = "assignments", allEntries = true)
+    })
     public Project updateProjectByManager(Long projectId, Project updatedProject, List<Long> developerIds) {
         Project existingProject = projectRepository.findById(projectId)
                 .orElseThrow(() -> new IllegalArgumentException("Проєкт не знайдено"));
@@ -88,6 +109,12 @@ public class ProjectService {
 
     //delete
     @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "projects", allEntries = true),
+            @CacheEvict(value = "managers", allEntries = true),
+            @CacheEvict(value = "developers", allEntries = true),
+            @CacheEvict(value = "customers", allEntries = true)
+    })
     public void deleteProject(Long projectId) {
 
         Project project = projectRepository.findById(projectId)
@@ -107,8 +134,9 @@ public class ProjectService {
         developerRepository.saveAll(assignedDevelopers);
 
         Manager assignedManager = managerRepository.findByAllProjects_Id(projectId);
-        if (assignedManager.getAllProjects().contains(project)) {
+        if (assignedManager != null && assignedManager.getAllProjects().contains(project)) {
             assignedManager.getAllProjects().remove(project);
+            managerRepository.save(assignedManager);
         }
 
         projectRepository.delete(project);
@@ -116,35 +144,43 @@ public class ProjectService {
 
 
     // find
+    @Cacheable(value = "projects", key = "'all'")
     public List<Project> findAllProjects() {
         return projectRepository.findAll();
     }
 
+    @Cacheable(value = "projects", key = "'proj_' + #projectId")
     public Project findProjectById(Long projectId) {
         return  projectRepository.findById(projectId)
             .orElseThrow(() -> new IllegalArgumentException("Проєкт з ID " + projectId + " не знайдено")); }
 
+    @Cacheable(value = "projects", key = "'all_sorted_admin'")
     public List<Project> findProjectsSortedForAdmin() {
         return projectRepository.findAllProjectsSortedByStatus();
     }
 
+    @Cacheable(value = "projects", key = "'customer_' + #userId")
     public List<Project> findProjectsForCustomer(Long userId) {
         return projectRepository.findProjectsForCustomerSortedByStatus(userId);
     }
 
+    @Cacheable(value = "projects", key = "'manager_' + #userId")
     public List<Project> findProjectsForManager(Long userId) {
         return projectRepository.findProjectsForManagerSortedByStatus(userId);
     }
 
+    @Cacheable(value = "projects", key = "'dev_' + #userId")
     public List<Project> findProjectsForDeveloper(Long userId) {
         return projectRepository.findProjectsForDeveloperSortedByStatus(userId);
     }
 
+    @Cacheable(value = "projects", key = "'all_with_invoices'")
     public List<Project> findProjectsWithInvoices() { return projectRepository.findProjectsWithInvoices(); }
 
+    @Cacheable(value = "projects", key = "'manager_invoices_' + #userId")
     public List<Project> findProjectsWithInvoicesByManager(Long userId) { return projectRepository.findProjectsWithInvoicesByManager(userId); }
 
+    @Cacheable(value = "projects", key = "'customer_invoices_' + #userId")
     public List<Project> findProjectsWithInvoicesByCustomer(Long userId) { return projectRepository.findProjectsWithInvoicesByCustomer(userId); }
-
 
 }

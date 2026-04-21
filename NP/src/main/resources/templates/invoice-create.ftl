@@ -51,7 +51,7 @@
                     </div>
                 </div>
 
-                <form action="/${rolePath}/invoices/create/${project.id}" method="post">
+                <form action="/invoices/create/${project.id}" method="post">
                     <label class="form-label text-uppercase text-muted fw-bold small tracking-wide mb-3">Фінальна сума до сплати ($)</label>
 
                     <div class="input-group input-group-lg mb-4 shadow-sm">

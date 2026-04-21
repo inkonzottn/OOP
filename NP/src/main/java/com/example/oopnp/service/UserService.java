@@ -3,11 +3,15 @@ package com.example.oopnp.service;
 import com.example.oopnp.entity.*;
 import com.example.oopnp.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.cache.annotation.Caching;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Collections;
 import java.util.List;
@@ -26,6 +30,7 @@ public class UserService implements UserDetailsService {
 
 
     @Override
+    @Cacheable(value = "users", key = "#email")
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
 
         User user = userRepository.findByEmail(email);
@@ -37,16 +42,16 @@ public class UserService implements UserDetailsService {
         return user;
     }
 
-    public boolean getUserFromDB(String email) {
-        return (userRepository.findByEmail(email) != null);
-    }
 
+    @Cacheable(value = "users", key = "#email")
     public User findUserByEmail(String email) {
         return userRepository.findByEmail(email);
     }
 
 
     // створення системних користувачів (адмін/дев/менеджер), тільки з адмінки
+    @Transactional
+    @CacheEvict(value = "users", allEntries = true)
     public User createUser(User user, String roleName) {
         Role role = roleRepository.findByName(roleName);
         user.setEmail(prepareEmail(user.getEmail(), role));
@@ -55,6 +60,11 @@ public class UserService implements UserDetailsService {
 
 
     // реєстрація клієнта
+    @Transactional
+    @Caching(evict = {
+            @CacheEvict(value = "users", allEntries = true),
+            @CacheEvict(value = "customers", allEntries = true)
+    })
     public User registerCustomer(Customer customer) {
 
         User user = customer.getUser();

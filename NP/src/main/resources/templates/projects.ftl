@@ -166,7 +166,7 @@
                                             <#if project.status == "INVOICED" || project.status == "COMPLETED">
                                                 <li><hr class="dropdown-divider"></li>
                                                 <li>
-                                                    <a class="dropdown-item d-flex align-items-center gap-2 py-2 fw-medium" href="/${rolePath}/invoices/create/${project.id}">
+                                                    <a class="dropdown-item d-flex align-items-center gap-2 py-2 fw-medium" href="/invoices/create/${project.id}">
                                                         <i class="bi bi-cash-coin text-success"></i> Виставити рахунок
                                                     </a>
                                                 </li>

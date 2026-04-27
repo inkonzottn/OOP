@@ -71,5 +71,4 @@ public class CustomerProjectController {
             return "project-create";
         }
     }
-
 }
